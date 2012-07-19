@@ -1,0 +1,89 @@
+@(tasks: List[String],sensorForm:Form[String])
+
+@import helper._
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Panels Demo</title>
+<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
+<style type="text/css">
+
+body{
+    min-width:740px;
+}
+#right{
+  float: right;
+  width: 410px;
+  background-color: #fff;
+  border:1px solid #000;
+}
+#content{
+  margin-right:550px;
+  border:1px solid #000;
+  background-color: #fff;
+}
+</style>
+</head>
+
+@main("Sensor List") {
+
+<div id="right">
+<div class="panelcollapsed">
+  <h2>Another panel</h2>
+  <div class="panelcontent">
+  <pre><code> 
+PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
+PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
+PREFIX bicy: &lt;http://citybikes.linkeddata.es/ontology#&gt;  
+SELECT ?avbikes ?obs ?av 
+FROM NAMED STREAM &lt;http://citybikes.linkeddata.es/ontology#CityBikes.srdf&gt; [NOW - 30 S]
+WHERE {
+  ?obs a bicy:FreeBikesObservation.
+  ?obs ssn:observationResult ?output.
+  ?output bicy:hasAvailableBikesValue ?av.
+  ?av qudt:numericValue ?avbikes.
+}
+</code></pre>
+  </div>
+
+
+
+</div>
+
+<div class="panelcollapsed">
+  <h2>Another panel</h2>
+  <div class="panelcontent">
+<pre><code> 
+query here
+</code></pre>
+  </div>
+
+
+
+</div>
+
+<div class="panelcollapsed">
+  <h2>Another panel</h2>
+  <div class="panelcontent">
+<pre><code> 
+another one
+</code></pre>
+  </div>
+
+
+
+</div>
+
+
+
+</div>
+<div id="content">
+  <h2>Add query</h2>
+  @form(routes.Application.query){
+    @textarea(field = sensorForm("query"), args = 'rows -> 22, 'cols -> 80)
+    <input type="submit" value="Query">
+  }
+</div>
+    
+}
+

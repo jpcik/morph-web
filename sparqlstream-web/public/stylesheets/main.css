@@ -1,0 +1,49 @@
+body { font: 12px Tahoma, Geneva, sans-serif; }
+
+/* panel */
+.panel, .panelcollapsed 
+{
+	background: #eee;
+	margin: 5px;
+	padding: 0px 0px 5px;
+	width: 400px;
+	border: 1px solid #999;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
+/* panel heading */
+.panel h2, .panelcollapsed h2 
+{
+	font-size: 18px;
+	font-weight: normal;
+	margin: 0px;
+	padding: 4px;
+	background: #CCC url(arrow-up.gif) no-repeat 280px;
+	border-bottom: 1px solid #999;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-top: 1px solid #FFF;
+	border-right: 1px solid #FFF;
+	border-left: 1px solid #FFF;
+}
+
+/* panel heading on rollover */
+.panel h2:hover, .panelcollapsed h2:hover { background-color: #A9BCEF; }
+
+/* heading of a collapsed panel */
+.panelcollapsed h2 
+{
+	background: #CCC url(arrow-dn.gif) no-repeat 280px;
+	border-color: #CCC;
+}
+
+/* panel content - do not set borders or paddings */
+.panelcontent 
+{ 
+	background: #EEE; 
+	overflow: hidden;
+}
+
+/* collapsed panel content */
+.panelcollapsed .panelcontent { display: none; }

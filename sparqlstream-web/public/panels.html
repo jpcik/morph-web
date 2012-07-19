@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Panels Demo</title>
+<link href="main.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="utils.js"></script>
+</head>
+
+<body>
+<div class="panel">
+  <h2>One panel</h2>
+  <div class="panelcontent">
+	<p>Content goes here</p>
+	<p>More content</p>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Another panel</h2>
+  <div class="panelcontent">
+	<p>Content goes here</p>
+	<p>More content</p>
+    <p>More content</p>
+  </div>
+</div>
+
+<div class="panelcollapsed">
+  <h2>Initially Collapsed</h2>
+  <div class="panelcontent">
+	<p>This panel is collapsed by default (until user sets a preference)</p>
+  </div>
+</div>
+<a href="javascript:expandAll()">Expand</a>
+<a href="javascript:collapseAll()">Collapse</a>
+</body>
+</html>
