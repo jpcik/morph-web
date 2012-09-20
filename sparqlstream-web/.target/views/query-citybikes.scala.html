@@ -1,4 +1,4 @@
-@(systemid:String,tasks: List[String],sensorForm:Form[(String,String)])
+@(tasks: List[String],sensorForm:Form[(String,String)])
 
 @import helper._
 <head>
@@ -28,8 +28,6 @@ body{
 @main("Sensor List") {
 
 <div id="right">
-
-@if(systemid==null || systemid.equals("citybikes")){
 <div class="panelcollapsed">
   <h2>Citybikes query (free bikes)</h2>
   <div class="panelcontent">
@@ -47,11 +45,13 @@ WHERE {
 }
 </code></pre>
   </div>
+
+
+
 </div>
 
-
 <div class="panelcollapsed">
-  <h2>Citybikes query (slots and bikes)</h2>
+  <h2>citybikes query (slots and bikes)</h2>
   <div class="panelcontent">
 <pre><code> 
 PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
@@ -78,31 +78,10 @@ WHERE {
  </code></pre>
   </div>
 
-</div>
 
-}
-
-@if(systemid==null || systemid.equals("swissex")){
-<div class="panelcollapsed">
-  <h2>Swissex query (windspeed)</h2>
-  <div class="panelcontent">
-<pre><code> 
-PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt; 
-PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX swissex: &lt;http://swissex.linkeddata.es/ontology#&gt;  
-SELECT ?obsval ?windspeed 
-FROM NAMED STREAM &lt;http://swissex.linkeddata.es/ontology#wannengrat.srdf&gt; [NOW - 8 DAY]
-WHERE {
-  ?output swissex:hasWindSpeedValue ?obsval. 
-  ?obsval qudt:numericValue ?windspeed.
-}
-</code></pre>
-  </div>
 
 </div>
-}
 
-@if(systemid==null || systemid.equals("ijs")){
 <div class="panelcollapsed">
   <h2>ISJ observations query (humidity)</h2>
   <div class="panelcontent">
@@ -118,8 +97,11 @@ WHERE {
 }
 </code></pre>
   </div>
+
+
+
 </div>
-}
+
 
 
 </div>

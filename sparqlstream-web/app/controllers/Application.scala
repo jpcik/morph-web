@@ -11,41 +11,66 @@ import scala.collection.mutable.ArrayBuffer
 import javax.xml.bind.JAXBContext
 import java.io.StringWriter
 import javax.xml.bind.Marshaller
-import es.upm.fi.oeg.morph.stream.gsn.GsnAdapter
+import es.upm.fi.oeg.morph.stream.evaluate.QueryEvaluator
 import java.net.URI
+import java.util.Properties
+import com.hp.hpl.jena.rdf.model.Model
+import java.io.ByteArrayOutputStream
+import es.upm.fi.oeg.morph.voc.RDFFormat
+import es.upm.fi.oeg.morph.common.ParameterUtils
+import collection.JavaConversions._
+import org.w3.sparql.results.Binding
 
 
 object Application extends Controller {
-  val taskForm=Form("query"->nonEmptyText)
+  val props= ParameterUtils.load(getClass.getClassLoader.getResourceAsStream("config/siq.properties"))
+  val gsns=props.getProperty("gsn.endpoints").split(",")
+  val mapGsns=gsns.map(g=>g->("mappings/"+g+".ttl",props.getProperty("gsn.endpoint."+g))).toMap
+  val taskForm=Form(tuple("system"->nonEmptyText,"query"->nonEmptyText))
   
   def index = Action {
     Ok(views.html.index(List("Your new application is ready."),taskForm))
   }
  
+  
  def query=Action{implicit request =>
     taskForm.bindFromRequest.fold(
         errors =>BadRequest(views.html.index(Sensor.all(),errors)),
-        query=>{
-          val r =Sensor.query(query)
-          Ok(views.html.result(r,null))
+        vals =>{
+          val r =Sensor.query(vals._1,vals._2)
+          Ok(views.html.result(r.asInstanceOf[Sparql],mapGsns(vals._1)._2,null))
         }
         )
   }
 
-  def posequery=Action{
-    Ok(views.html.query(Sensor.all(),taskForm))
+  def posequery(id:String)=Action{
+    //if (!id.equals("citybikes")) BadRequest(views.html.index(null,null))
+    Ok(views.html.query(id,Sensor.all(),taskForm))
+  }
+ 
+  def posequeryall=Action{
+    Ok(views.html.query(null,Sensor.all(),taskForm))
   }
  
 }
 
 object Sensor{
+
   val sensors=new ArrayBuffer[String]
   def all():List[String]=sensors.toList
-  def query(query:String)={
-    val gsn=new GsnAdapter
-    
+  def query(system:String,query:String)={
+    val (mapping,uri)=Application.mapGsns(system)/* match {
+      case "jsi"=>("mappings/ijs.ttl","http://gsn.ijs.si")
+      case "swissex"=>("mappings/swissex.ttl","http://montblanc.slf.ch:22001")
+      case "citybikes"=>("mappings/citybikes.ttl","http://forgy.dia.fi.upm.es:22001")
+    }*/
+    println("got "+mapping)
+    val props= new Properties
+    props.put("gsn.endpoint",uri)
+    val gsn=new QueryEvaluator(props)
+    //gsn.props.setProperty("gsn.endpoint","ffffefwfw")
 	//val	props = ParameterUtils.load(getClass().getClassLoader().getResourceAsStream("config/config_memoryStore.gsn.properties"))
-	val mappingUri = new URI("mappings/citybikes.ttl")    
+	val mappingUri = new URI(mapping)    
     val resulto=gsn.executeQuery(query,mappingUri)
 
     //val trans = new QueryTranslator(props);
@@ -55,15 +80,33 @@ object Sensor{
 		//val exe = new QueryExecutor(props);
 		//val sparqlResult:Sparql=exe.query(gQuery,QueryTranslator.getProjectList(query));
 	
-	sparql(resulto)
+	resulto match{
+      case sp:Sparql=>sp//sparql(sp)
+      case rdf:Model=>rdf//.toString//write(System.out,RDFFormat.TTL)
+    }
+    
   }
+  def writeModel(model:Model)={
+    val out=new ByteArrayOutputStream()
+    model.write(out,RDFFormat.TTL)
+    new String(out.toByteArray)
+  }
+  
+ private implicit def binding2String(b:Binding):String=
+   b.getName+":" +
+     (if (b.getUri!=null) b.getUri else b.getLiteral.getContent)
+ 
  def sparql(sparql:Sparql)={
+   sparql.getResults().getResult().map{r=>
+     r.getBinding().map{b=>binding2String(b)}.mkString(",\t")
+   }.mkString(",\n")
+   /*
     val jax = JAXBContext.newInstance(classOf[Sparql]) ;
  	val m = jax.createMarshaller();
  	val sr = new StringWriter();
  	m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, java.lang.Boolean.TRUE);
  	m.marshal(sparql,sr);
- 	sr.toString
+ 	sr.toString*/
   }
 
 }

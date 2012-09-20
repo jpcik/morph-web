@@ -18,10 +18,11 @@ object ApplicationBuild extends Build {
         resolvers ++= Seq(
          //DefaultMavenRepository,         
          //("Local ivy Repository" at "file://"+Path.userHome.absolutePath+"/.ivy2/local")
+         Resolver.url("local ivy",url("file://"+Path.userHome.absolutePath+"/.ivy2/local"))(Resolver.ivyStylePatterns),
          "aldebaran-libs" at "http://aldebaran.dia.fi.upm.es/artifactory/sstreams-external-libs-local",
          "aldebaran-releases" at "http://aldebaran.dia.fi.upm.es/artifactory/sstreams-releases-local",
-         Resolver.url("local ivy",url("file://"+Path.userHome.absolutePath+"/.ivy2/local"))(Resolver.ivyStylePatterns)
-)
+         "jpc-repo" at "https://github.com/jpcik/jpc-repo/raw/master/repo"   
+        )
     )
 
 }
