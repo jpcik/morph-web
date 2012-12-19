@@ -82,6 +82,28 @@ WHERE {
 
 }
 
+@if(systemid==null || systemid.equals("emt")){
+<div class="panelcollapsed">
+  <h2>EMT query (bus time to stop)</h2>
+  <div class="panelcontent">
+  <pre><code> 
+PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
+PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
+PREFIX emt: &lt;http://emt.linkeddata.es/data#&gt;  
+SELECT ?timeto ?obs ?av 
+FROM NAMED STREAM &lt;http://emt.linkeddata.es/data#busstops.srdf&gt; [NOW - 30 S]
+WHERE {
+  ?obs a emt:BusObservation.
+  ?obs ssn:observationResult ?output.
+  ?output emt:timeToBusValue ?av.
+  ?av qudt:numericValue ?timeto.
+}
+</code></pre>
+  </div>
+</div>
+}
+
+
 @if(systemid==null || systemid.equals("swissex")){
 <div class="panelcollapsed">
   <h2>Swissex query (windspeed)</h2>
@@ -126,7 +148,7 @@ WHERE {
 <div id="content">
   <h2>Add query</h2>
   @form(routes.Application.query){
-  @select(field = sensorForm("system"), options = Seq("citybikes"->"Citybikes Sensors",
+  @select(field = sensorForm("system"), options = Seq("citybikes"->"Citybikes Sensors","emt"->"EMT Buses",
           "ijs"->"JSI Sensors","swissex"->"Swiss Experiment Sensors"))
   
     @textarea(field = sensorForm("query"), args = 'rows -> 22, 'cols -> 50)
