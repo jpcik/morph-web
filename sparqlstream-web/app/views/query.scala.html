@@ -36,9 +36,9 @@ body{
   <pre><code> 
 PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
 PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX bicy: &lt;http://citybikes.linkeddata.es/ontology#&gt;  
+PREFIX bicy: &lt;http://transporte.linkeddata.es/ontology#&gt;  
 SELECT ?avbikes ?obs ?av 
-FROM NAMED STREAM &lt;http://citybikes.linkeddata.es/ontology#CityBikes.srdf&gt; [NOW - 30 S]
+FROM NAMED STREAM &lt;http://transporte.linkeddata.es/ontology#CityBikes.srdf&gt; [NOW - 30 S]
 WHERE {
   ?obs a bicy:FreeBikesObservation.
   ?obs ssn:observationResult ?output.
@@ -56,14 +56,14 @@ WHERE {
 <pre><code> 
 PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
 PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX bicy: &lt;http://citybikes.linkeddata.es/ontology#&gt;
+PREFIX bicy: &lt;http://transporte.linkeddata.es/ontology#&gt;
 PREFIX time: &lt;http://www.w3.org/2006/time#&gt;
 PREFIX dcterms: &lt;http://purl.org/dc/terms/&gt;
 PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;
 
 SELECT   ?sensdev ?avbikes ?freeslots ?tstamp
 
-FROM NAMED STREAM &lt;http://citybikes.linkeddata.es/ontology#CityBikes.srdf&gt; [NOW - 300 S]
+FROM NAMED STREAM &lt;http://transporte.linkeddata.es/ontology#CityBikes.srdf&gt; [NOW - 300 S]
 WHERE {
   ?obs ssn:observedBy ?sensdev .
   ?obs a bicy:FreeBikesObservation.

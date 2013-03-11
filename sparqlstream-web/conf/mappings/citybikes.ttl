@@ -3,7 +3,7 @@
 @prefix ssg: <http://semsorgrid4env.eu/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
-@prefix bicy: <http://citybikes.linkeddata.es/ontology#> . 
+@prefix bicy: <http://transporte.linkeddata.es/ontology#> . 
 @prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> .
 @prefix time: <http://www.w3.org/2006/time#> .
 @prefix quantity: <http://data.nasa.gov/qudt/owl/quantity#> .
@@ -14,46 +14,46 @@
 
 :device a rr:TriplesMap;
   rr:logicalTable [rr:tableName "citybikes"];
-  rr:subjectMap [rr:template "http://citybikes.linkeddata.es/id/bikesystem/{systemid}/sensingdevice/{id}"; 
+  rr:subjectMap [rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}"; 
                  rr:class bicy:BikeStationSensingDevice];
   rr:predicateObjectMap [rr:predicate dcterms:identifier;rr:objectMap [rr:column "id"]];
   rr:predicateObjectMap [rr:predicate ssn:featureOfInterest;rr:objectMap [rr:constant bicy:free_bikes_feature]]
 .
 
-:freeSlotsValue a rr:TriplesMap;
+:FreeSlotsValue a rr:TriplesMap;
   rr:logicalTable [rr:tableName "citybikes"];
-  rr:subjectMap [ rr:template "http://citybikes.linkeddata.es/id/bikessystem/{systemid}/sensingdevice/{id}/freeslotsvalue/{timed}";	
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/FreeSlotsValue/{timed}";	
 		  	      rr:class bicy:FreeSlotsValue; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "free"]];     		   
 .		   
 
 :availableBikesValue a rr:TriplesMap;
   rr:logicalTable [rr:tableName "citybikes"];
-  rr:subjectMap [ rr:template "http://citybikes.linkeddata.es/id/bikessystem/{systemid}/sensingdevice/{id}/availablebikesvalue/{timed}";	
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/AvailableBikesValue/{timed}";	
 	   		      rr:class bicy:AvailableBikesValue; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "bikes"]];     		   
 .		   
       		        	      		       	      		        		        
 :bikesOutput a rr:TriplesMap;
   rr:logicalTable [rr:tableName "citybikes"];
-  rr:subjectMap [ rr:template "http://citybikes.linkeddata.es/id/bikesystem/{systemid}/sensingdevice/{id}/sensoroutput/{timed}";
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/SensorOutput/{timed}";
 				  rr:class bicy:BikeStationSensorOutput; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate bicy:hasFreeSlotsValue;
-  						  rr:objectMap	  [ rr:parentTriplesMap :freeSlotsValue; rr:joinCondition "" ] ];	   		  
+  						  rr:objectMap	  [ rr:parentTriplesMap :FreeSlotsValue; rr:joinCondition "" ] ];	   		  
   rr:predicateObjectMap [ rr:predicate bicy:hasAvailableBikesValue;
 						  rr:objectMap	  [ rr:parentTriplesMap :availableBikesValue; rr:joinCondition "" ] ];	   		  
 .      		   
 
 :bikesResultTime a rr:TriplesMap;	
   rr:logicalTable [rr:tableName "citybikes"];
-  rr:subjectMap [ rr:template "http://citybikes.linkeddata.es/id/bikesystem/{systemid}/sensingdevice/{id}/bikesresulttime/{timed}";
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/BikesResultTime/{timed}";
 	  			  rr:class time:Instant; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate time:inXSDDateTime;rr:objectMap [ rr:column "timestamp" ] ];     		   
 .		   
      
 :bikesObservation a rr:TriplesMap;
   rr:logicalTable [rr:tableName "citybikes"];
-  rr:subjectMap   [rr:template "http://citybikes.linkeddata.es/bikesystem/{systemid}/sensingdevice/{id}/observation/{timed}";  
+  rr:subjectMap   [rr:template "http://transporte.linkeddata.es/BikeSystem/{systemid}/SensingDevice/{id}/Observation/{timed}";  
     			   rr:class bicy:FreeBikesObservation; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedProperty ]; 
       		             rr:objectMap    [ rr:constant bicy:free-slots ]];      		   
