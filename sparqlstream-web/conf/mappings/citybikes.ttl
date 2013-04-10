@@ -10,10 +10,13 @@
 @prefix qudt: <http://data.nasa.gov/qudt/owl/qudt#> .
 @prefix void: <http://rdfs.org/ns/void#>.
 @prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix morph: <http://oeg-upm.net/ns/morph#> .
 @prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
 
+:bikesTable rr:tableName "citybikes"; morph:pk "systemid,id,timed".
+
 :device a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "citybikes"];
+  rr:logicalTable :bikesTable;
   rr:subjectMap [rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}"; 
                  rr:class bicy:BikeStationSensingDevice];
   rr:predicateObjectMap [rr:predicate dcterms:identifier;rr:objectMap [rr:column "id"]];
@@ -21,21 +24,21 @@
 .
 
 :FreeSlotsValue a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "citybikes"];
+  rr:logicalTable :bikesTable;
   rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/FreeSlotsValue/{timed}";	
 		  	      rr:class bicy:FreeSlotsValue; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "free"]];     		   
 .		   
 
 :availableBikesValue a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "citybikes"];
+  rr:logicalTable :bikesTable;
   rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/AvailableBikesValue/{timed}";	
 	   		      rr:class bicy:AvailableBikesValue; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "bikes"]];     		   
 .		   
       		        	      		       	      		        		        
 :bikesOutput a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "citybikes"];
+  rr:logicalTable :bikesTable;
   rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/SensorOutput/{timed}";
 				  rr:class bicy:BikeStationSensorOutput; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate bicy:hasFreeSlotsValue;
@@ -45,14 +48,14 @@
 .      		   
 
 :bikesResultTime a rr:TriplesMap;	
-  rr:logicalTable [rr:tableName "citybikes"];
+  rr:logicalTable :bikesTable;
   rr:subjectMap [ rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}/BikesResultTime/{timed}";
 	  			  rr:class time:Instant; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [ rr:predicate time:inXSDDateTime;rr:objectMap [ rr:column "timestamp" ] ];     		   
 .		   
      
 :bikesObservation a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "citybikes"];
+  rr:logicalTable :bikesTable;
   rr:subjectMap   [rr:template "http://transporte.linkeddata.es/BikeSystem/{systemid}/SensingDevice/{id}/Observation/{timed}";  
     			   rr:class bicy:FreeBikesObservation; rr:graph bicy:CityBikes.srdf ];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedProperty ]; 

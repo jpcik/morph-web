@@ -1,19 +1,20 @@
 import sbt._
 import Keys._
-import PlayProject._
+import play.Project._
+//import PlayProject._
 
 object ApplicationBuild extends Build {
 
     val appName         = "sparqlstream-web"
-    val appVersion      = "1.0.1"
+    val appVersion      = "1.0.2"
 
     val appDependencies = Seq(
       // Add your project dependencies here,
-      "es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.1"
-
+      "es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.2"
+        //"ch.qos.logback" % "logback-classic" % "1.0.9"
     )
 
-    val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
+    val main = play.Project(appName, appVersion, appDependencies).settings(
       // Add your own project settings here 
         resolvers ++= Seq(
          //DefaultMavenRepository,         

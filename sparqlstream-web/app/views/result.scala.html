@@ -1,24 +1,20 @@
-@(bindings:org.w3.sparql.results.Sparql,endpoint:String,sensorForm:Form[String])
+@(bindings:es.upm.fi.oeg.siq.sparql.SparqlResults,endpoint:String,sensorForm:Form[String])
 
 @import helper._
-@import org.w3.sparql.results.Sparql
-
+@import es.upm.fi.oeg.siq.sparql.SparqlResults
+@import scala.collection.JavaConversions._
 
 
 @main("Results") {
   <h3>Endpoint: @endpoint</h3>
   <h4>Results</h4>
   <ul>
-@bindings.getResults.getResult.map { r =>
+@bindings.getResultSet.map { r =>
   <li>
-  @r.getBinding.map{b=>
-    @b.getName : 
-    @if(b.getUri != null){ 
-      @b.getUri
-    } else {
-      @b.getLiteral.getContent
-    }
-    ,
+  @r.varNames.map{v=>
+    @v : 
+    @r.get(v)
+    ,    
   }
   </li>
 } 

@@ -6,7 +6,6 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Json._
-import org.w3.sparql.results.Sparql
 import scala.collection.mutable.ArrayBuffer
 import javax.xml.bind.JAXBContext
 import java.io.StringWriter
@@ -19,7 +18,7 @@ import java.io.ByteArrayOutputStream
 import es.upm.fi.oeg.morph.voc.RDFFormat
 import es.upm.fi.oeg.morph.common.ParameterUtils
 import collection.JavaConversions._
-import org.w3.sparql.results.Binding
+import es.upm.fi.oeg.siq.sparql.SparqlResults
 
 
 object Application extends Controller {
@@ -38,7 +37,7 @@ object Application extends Controller {
         errors =>BadRequest(views.html.index(Sensor.all(),errors)),
         vals =>{
           val r =Sensor.query(vals._1,vals._2)
-          Ok(views.html.result(r.asInstanceOf[Sparql],mapGsns(vals._1)._2,null))
+          Ok(views.html.result(r.asInstanceOf[SparqlResults],mapGsns(vals._1)._2,null))
         }
         )
   }
@@ -81,7 +80,7 @@ object Sensor{
 		//val sparqlResult:Sparql=exe.query(gQuery,QueryTranslator.getProjectList(query));
 	
 	resulto match{
-      case sp:Sparql=>sp//sparql(sp)
+      case sp:SparqlResults=>sp//sparql(sp)
       case rdf:Model=>rdf//.toString//write(System.out,RDFFormat.TTL)
     }
     
@@ -91,7 +90,8 @@ object Sensor{
     model.write(out,RDFFormat.TTL)
     new String(out.toByteArray)
   }
-  
+ 
+  /*
  private implicit def binding2String(b:Binding):String=
    b.getName+":" +
      (if (b.getUri!=null) b.getUri else b.getLiteral.getContent)
@@ -107,6 +107,6 @@ object Sensor{
  	m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, java.lang.Boolean.TRUE);
  	m.marshal(sparql,sr);
  	sr.toString*/
-  }
+  }*/
 
 }
