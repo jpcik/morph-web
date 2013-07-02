@@ -6,11 +6,12 @@ import play.Project._
 object ApplicationBuild extends Build {
 
     val appName         = "sparqlstream-web"
-    val appVersion      = "1.0.2"
+    val appVersion      = "1.0.3"
 
     val appDependencies = Seq(
       // Add your project dependencies here,
-      "es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.2"
+      ("es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.2")
+      .exclude("org.slf4j", "slf4j-log4j12")
         //"ch.qos.logback" % "logback-classic" % "1.0.9"
     )
 

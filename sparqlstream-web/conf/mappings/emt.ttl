@@ -10,33 +10,36 @@
 @prefix qudt: <http://data.nasa.gov/qudt/owl/qudt#> .
 @prefix void: <http://rdfs.org/ns/void#>.
 @prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix morph: <http://oeg-upm.net/ns/morph#> .
 @prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
 
+:emtStream rr:tableName "emt"; morph:pk "stopid,lineid,timed".
+
 :device a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "emt"];
-  rr:subjectMap [rr:template "http://emt.linkeddata.es/id/busstopsensor/{stopid}"; 
+  rr:logicalTable :emtStream;
+  rr:subjectMap [rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}"; 
                  rr:class emt:BusStopSensingDevice];
   rr:predicateObjectMap [rr:predicate dcterms:identifier;rr:objectMap [rr:column "stopid"]];
   rr:predicateObjectMap [rr:predicate ssn:featureOfInterest;rr:objectMap [rr:constant emt:time_to_bus]]
 .
 
 :timeToBusValue a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "emt"];
-  rr:subjectMap [ rr:template "http://emt.linkeddata.es/id/busstop/{stopid}/busline/{lineid}/timeToBusValue/{timed}";	
+  rr:logicalTable :emtStream;
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/timeToBusValue/{timed}";	
 		  	      rr:class emt:TimetoBusValue; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "timetobus"]];     		   
 .		   
 
 :distanceToBusValue a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "emt"];
-  rr:subjectMap [ rr:template "http://emt.linkeddata.es/id/busstop/{stopid}/busline/{lineid}/distanceToBusValue/{timed}";	
+  rr:logicalTable :emtStream;
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/distanceToBusValue/{timed}";	
 	   		      rr:class emt:DistanceToBusValue; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "distancetobus"]];     		   
 .		   
       		        	      		       	      		        		        
 :busOutput a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "emt"];
-  rr:subjectMap [ rr:template "http://emt.linkeddata.es/id/busstop/{stopid}/busline/{lineid}/output/{timed}";
+  rr:logicalTable :emtStream;
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/output/{timed}";
 				  rr:class emt:BusStopSensorOutput; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [ rr:predicate emt:timeToBusValue;
   						  rr:objectMap	  [ rr:parentTriplesMap :timeToBusValue; rr:joinCondition "" ] ];	   		  
@@ -45,15 +48,15 @@
 .      		   
 
 :busResultTime a rr:TriplesMap;	
-  rr:logicalTable [rr:tableName "emt"];
-  rr:subjectMap [ rr:template "http://emt.linkeddata.es/id/busstop/{stopid}/busline/{lineid}/resulttime/{timed}";
+  rr:logicalTable :emtStream;
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/resulttime/{timed}";
 	  			  rr:class time:Instant; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [ rr:predicate time:inXSDDateTime;rr:objectMap [ rr:column "timed" ] ];     		   
 .		   
      
 :busObservation a rr:TriplesMap;
-  rr:logicalTable [rr:tableName "emt"];
-  rr:subjectMap   [rr:template "http://emt.linkeddata.es/busstop/{stopid}/line/{lineid}/observation/{timed}";  
+  rr:logicalTable :emtStream;
+  rr:subjectMap   [rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/observation/{timed}";  
     			   rr:class emt:BusObservation; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedProperty ]; 
       		             rr:objectMap    [ rr:constant emt:time_to_bus ]];      		   

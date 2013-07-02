@@ -1,4 +1,4 @@
-<configuration>
+<configuration  debug="true">
     
   <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel" />
   
@@ -15,13 +15,13 @@
     </encoder>
   </appender>
   
-  <logger name="play" level="INFO" />
-  <logger name="application" level="INFO" />
+  <logger name="play" level="DEBUG" />
+  <logger name="application" level="DEBUG" />
 	<logger name="es.upm.fi.oeg.morph" level="DEBUG" />
 	<logger name="es.upm.fi.oeg.morph.stream.esper.EsperResultSet" level="INFO" />
 	<logger name="eu.planetdata.srbench" level="TRACE" />
 
-  <root level="ERROR">
+  <root level="DEBUG">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
   </root>

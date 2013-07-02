@@ -7,6 +7,7 @@ GET     /                           controllers.Application.index
 GET     /maps                       controllers.QueryMetadata.maps
 GET     /query                      controllers.Application.posequeryall
 GET     /query/:id                  controllers.Application.posequery(id: String)
+GET     /:id/sparqlstream           controllers.SparqlStream.posequery(id: String)
 POST    /query                      controllers.Application.query
 POST    /searchSensors              controllers.QueryMetadata.searchSensors
 
