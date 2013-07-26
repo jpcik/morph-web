@@ -54,19 +54,16 @@ object Application extends Controller {
 }
 
 object Sensor{
-
+  val props= ParameterUtils.load(getClass.getClassLoader.getResourceAsStream("config/siq.properties"))
   val sensors=new ArrayBuffer[String]
   def all():List[String]=sensors.toList
   def query(system:String,query:String)={
-    val (mapping,uri)=Application.mapGsns(system)/* match {
-      case "jsi"=>("mappings/ijs.ttl","http://gsn.ijs.si")
-      case "swissex"=>("mappings/swissex.ttl","http://montblanc.slf.ch:22001")
-      case "citybikes"=>("mappings/citybikes.ttl","http://forgy.dia.fi.upm.es:22001")
-    }*/
+    val (mapping,uri)=Application.mapGsns(system)
     println("got "+mapping)
-    val props= new Properties
-    props.put("gsn.endpoint",uri)
-    val gsn=new QueryEvaluator(props)
+    val props1= new Properties
+    props1++=props
+    props1.put("gsn.endpoint",uri)
+    val gsn=new QueryEvaluator(props1)
     //gsn.props.setProperty("gsn.endpoint","ffffefwfw")
 	//val	props = ParameterUtils.load(getClass().getClassLoader().getResourceAsStream("config/config_memoryStore.gsn.properties"))
 	val mappingUri = new URI(mapping)    
