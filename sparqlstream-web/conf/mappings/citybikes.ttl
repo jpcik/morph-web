@@ -62,6 +62,8 @@
       		             rr:objectMap    [ rr:constant bicy:free-slots ]];      		   
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedBy ];
     					 rr:objectMap    [ rr:parentTriplesMap :device; rr:joinCondition "" ]];
+rr:predicateObjectMap [rr:predicateMap [ rr:constant bicy:inStation ];
+    					 rr:objectMap    [ rr:template "http://citybikes.linkeddata.es/id/bikesystem/{systemid}/station/{id}"]];    					 
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observationResult ]; 
       		             rr:objectMap    [ rr:parentTriplesMap :bikesOutput; rr:joinCondition "" ]];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observationResultTime ];
