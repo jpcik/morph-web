@@ -21,7 +21,7 @@ object QueryMetadata extends Controller{
   
   def searchSensors=Action{implicit request =>
     searchForm.bindFromRequest.fold(
-        errors =>BadRequest(views.html.index(Sensor.all(),errors)),
+        errors =>BadRequest(views.html.index(Sensor.all(),null)),
         vals =>{
           val sensors=QueryExecutor.getSensors(vals._1).toList
           //val ss=Json.toJson(sensors.head)

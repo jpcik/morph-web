@@ -1,0 +1,40 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ssg: <http://semsorgrid4env.eu/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
+@prefix hl7rim:  <http://hl7rim.eureca.org/CDM#> . 
+@prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix quantity: <http://data.nasa.gov/qudt/owl/quantity#> .
+@prefix qudt: <http://data.nasa.gov/qudt/owl/qudt#> .
+@prefix void: <http://rdfs.org/ns/void#>.
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix morph: <http://oeg-upm.net/ns/morph#> .
+@prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
+
+:hl7Stream rr:tableName "hl7"; morph:pk "obsid".
+
+:obs a rr:TriplesMap;
+  rr:logicalTable :hl7Stream;
+  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/obsno/{obsid}"; 
+                 rr:class hl7rim:observation,<http://purl.bioontology.org/ontology/SNOMEDCT/75367002> ];
+  rr:predicateObjectMap [rr:predicate hl7rim:observation_valueST;rr:objectMap [rr:template "{systolic} over {diastolic}"]];
+  rr:predicateObjectMap [rr:predicate hl7rim:observation_units;rr:objectMap [rr:constant "mmHg"]];
+  rr:predicateObjectMap [rr:predicate hl7rim:observation_actionNegationInd;rr:objectMap [rr:constant "true"]]
+.
+
+:part a rr:TriplesMap;
+  rr:logicalTable :hl7Stream;
+  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A100{patientid}/PART"; 
+                 rr:class hl7rim:participation];
+  rr:predicateObjectMap [rr:predicate hl7rim:participation_observation;rr:objectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/obsno/{obsid}"]];
+.
+
+:patient a rr:TriplesMap;
+  rr:logicalTable :hl7Stream;
+  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/roleno/BC_ZSH2012A100{patientid}"; 
+                 rr:class hl7rim:patientrole];
+  rr:predicateObjectMap [rr:predicate hl7rim:role_participation;rr:objectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A100{patientid}/PART"]];
+.
+

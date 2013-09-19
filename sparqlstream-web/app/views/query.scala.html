@@ -1,4 +1,4 @@
-@(systemid:String,tasks: List[String],sensorForm:Form[(String,String)])
+@(systemid:String,sensorForm:Form[(String,String,String)])
 
 @import helper._
 <head>
@@ -143,16 +143,35 @@ WHERE {
 </div>
 }
 
+@if(systemid==null || systemid.equals("hl7")){
+<div class="panelcollapsed">
+  <h2>Patients</h2>
+  <div class="panelcontent">
+<pre><code> 
+PREFIX hl7rim: &lt;http://hl7rim.eureca.org/CDM#&gt;
+SELECT ?obs ?sys 
+FROM NAMED STREAM &lt;http://patients.linkeddata.es/ontology/patients.srdf&gt; [NOW - 30 S]
+WHERE {
+  ?obs a hl7rim:observation.
+  ?obs hl7rim:observation_valueST ?sys.
+}
+</code></pre>
+  </div>
+</div>
+}
+
 
 </div>
 <div id="content">
   <h2>Add query</h2>
   @form(routes.Application.query){
-  @select(field = sensorForm("system"), options = Seq("citybikes"->"Citybikes Sensors","emt"->"EMT Buses",
+  @select(field = sensorForm("system"), options = Seq("hl7"->"HL7","citybikes"->"Citybikes Sensors","emt"->"EMT Buses",
           "ijs"->"JSI Sensors","swissex"->"Swiss Experiment Sensors"))
   
     @textarea(field = sensorForm("query"), args = 'rows -> 22, 'cols -> 50)
-    <input type="submit" value="Query">
+    <!--  <input type="submit" value="Query">-->
+    <button type="submit" name="action" value="query">Query</button>
+    <button type="submit" name="action" value="register">Register</button>
   }
 </div>
     
