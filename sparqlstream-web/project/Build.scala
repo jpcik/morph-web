@@ -10,7 +10,7 @@ object ApplicationBuild extends Build {
     val appDependencies = Seq(
       // Add your project dependencies here,
       "es.upm.fi.oeg.morph.streams" % "adapter-esper" % "1.0.8",
-      "es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.2",
+      "es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.4",
       ("es.upm.fi.oeg.morph.streams" % "wrappers" % "1.0.3")
       .exclude("org.slf4j", "slf4j-log4j12")
         //"ch.qos.logback" % "logback-classic" % "1.0.9"
