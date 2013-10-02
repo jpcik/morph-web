@@ -36,13 +36,16 @@ import akka.actor.PoisonPill
 import language.postfixOps
 import es.upm.fi.oeg.morph.stream.esper.EsperAdapter
 import es.upm.fi.oeg.morph.stream.gsn.GsnAdapter
+import es.upm.fi.oeg.morph.stream.evaluate.Mapping
+import scala.io.Source
 
 object Application extends Controller {
   
   val props= ParameterUtils.load(this.getClass().getClassLoader().getResourceAsStream("config/siq.properties"))
   val gsns=props.getProperty("gsn.endpoints").split(",")
   val mapGsns=gsns.map(g=>g->("mappings/"+g+".ttl",props.getProperty("gsn.endpoint."+g))).toMap
-  val taskForm=Form(tuple("system"->nonEmptyText,"query"->nonEmptyText,"action"->nonEmptyText))
+  val taskForm=Form(mapping("system"->nonEmptyText,"action"->nonEmptyText,"query"->nonEmptyText,
+      "customMapping"->boolean, "mapping"->optional(text))(QueryForm.apply)(QueryForm.unapply) )
   val initForm=Form(tuple("system"->nonEmptyText,"query"->nonEmptyText))
   def index = Action {
     Ok(views.html.index(List("Your new application is ready."),initForm))
@@ -72,21 +75,19 @@ object Application extends Controller {
 }
   
     
- def query=Action{implicit request =>
+  def query=Action{implicit request =>
     taskForm.bindFromRequest.fold(
         errors =>BadRequest(views.html.query(  null,errors)),
         vals =>{
           Logger.debug("getting form "+vals)
-          if (vals._3.equals("query")){ 
-            val r =Sensor.query(vals._1,vals._2)
-            Ok(views.html.result(r.asInstanceOf[SparqlResults],mapGsns(vals._1)._2,null))
+          val mapping=if (vals.customMapping) vals.mapping else None
+          if (vals.action.equals("query")){            
+            val r =Sensor.query(vals.systemid,vals.query,mapping)
+            Ok(views.html.result(r.asInstanceOf[SparqlResults],mapGsns(vals.systemid)._2,null))
           }
           else{
             val rec=new ResultsReceiver
-            val r =Sensor.register(vals._1,vals._2)
-            
-            //Ok.stream(Enumerator.repeat("papa")) //( "wweq").andThen(Enumerator.eof))
-            //Ok(views.html.result(null,mapGsns(vals._1)._2,null))
+            val r =Sensor.register(vals.systemid,vals.query)          
             Ok(views.html.qid(r,taskForm))
           }
             
@@ -95,22 +96,22 @@ object Application extends Controller {
   }
 
   def posequery(id:String)=Action{
-    //if (!id.equals("citybikes")) BadRequest(views.html.index(null,null))
-    Ok(views.html.query(id,taskForm))
+    val (map,uri)=mapGsns(id)
+    val mapIS=getClass.getClassLoader.getResourceAsStream(map)
+    println("input "+mapIS+" "+map)
+    val mapping=Source.fromInputStream(mapIS).getLines.mkString("\n")
+
+    Ok(views.html.query(id,taskForm.fill(QueryForm(id,"","",false,Some(mapping)))))    
   }
  
   def posequeryall=Action{
-    Ok(views.html.query(null,taskForm))
+
+    Ok(views.html.query(null,taskForm.fill(QueryForm("","","",false,None))))
   }
- class ResultsReceiver extends StreamReceiver{
-   
+ 
+class ResultsReceiver extends StreamReceiver{   
   override def receiveData(s:SparqlResults){   
     Logger.debug("got: "+EvaluatorUtils.serializeJson(s))
-    //val orig=(System.nanoTime-stTime)/1000000
-    //logger.debug("got at: "+orig)
-    //val timed:Long = (Math.round(orig/rounding)*rounding).toLong
-    //logger.info("times: "+orig+" "+timed)
-    //allResults.+= ((timed,s))
   }
 }
 
@@ -152,7 +153,7 @@ object Sensor{
   val props= ParameterUtils.load(getClass.getClassLoader().getResourceAsStream("config/siq.properties"))
   val sensors=new ArrayBuffer[String]
   def all():List[String]=sensors.toList
-  def query(system:String,query:String)={
+  def query(system:String,query:String,mappingStr:Option[String])={
     val (mapping,uri)=Application.mapGsns(system)
     println("got "+mapping)
     val props1= new Properties
@@ -162,8 +163,9 @@ object Sensor{
     //val gsn=new EsperAdapter(Global.esper.system)
     val gsn=new GsnAdapter(system)
 	val mappingUri = new URI(mapping)    
-    val resulto=gsn.executeQuery(query,mappingUri)
-	
+    val resulto=
+      if (mappingStr.isDefined) gsn.executeQuery(query,Mapping(mappingStr.get))
+	  else gsn.executeQuery(query,Mapping(mappingUri))
 	resulto match{
       case sp:SparqlResults=>sp//sparql(sp)
       case rdf:Model=>rdf//.toString//write(System.out,RDFFormat.TTL)
@@ -180,7 +182,7 @@ def register(system:String,query:String)={
     
     val gsn=new EsperAdapter(Global.esper.system)
 	val mappingUri = new URI(mapping.toString)    
-    val resulto=gsn.registerQuery(query,mappingUri)
+    val resulto=gsn.registerQuery(query,Mapping(mappingUri))
 	
 	resulto 
     
@@ -188,12 +190,12 @@ def register(system:String,query:String)={
 
 
 def listen(system:String,query:String,rec:StreamReceiver)={
-    val (mapping,uri)=Application.mapGsns(system)
+    val (mapping,uri)=Application.mapGsns(system)    
     println("got "+mapping)
     val gsn=new EsperAdapter(Global.esper.system)
-	val mappingUri = new URI(mapping.toString)    
-    val resulto=gsn.listenToQuery(query,mappingUri,rec)
-	
+	val mappingUri = new URI(mapping)    
+    val resulto=gsn.listenToQuery(query,Mapping(mappingUri),rec)
+	    
 	resulto 
     
   }

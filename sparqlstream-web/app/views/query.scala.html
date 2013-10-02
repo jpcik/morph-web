@@ -1,4 +1,4 @@
-@(systemid:String,sensorForm:Form[(String,String,String)])
+@(systemid:String,sensorForm:Form[QueryForm])
 
 @import helper._
 <head>
@@ -6,6 +6,14 @@
 <title>Panels Demo</title>
 <link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
+<script type="text/javascript">
+function hide() {
+	check = document.getElementById('customMapping').checked
+	elem = document.getElementById('mappingDiv')
+	if (check)	elem.style.display = 'block';
+	else elem.style.display = 'none';
+}
+</script>
 <style type="text/css">
 
 body{
@@ -20,6 +28,10 @@ body{
 #content{
   margin-right:450px;
   border:1px solid #000;
+  background-color: #fff;
+}
+div.hiddy{
+  display:none;
   background-color: #fff;
 }
 </style>
@@ -165,13 +177,21 @@ WHERE {
 <div id="content">
   <h2>Add query</h2>
   @form(routes.Application.query){
-  @select(field = sensorForm("system"), options = Seq("hl7"->"HL7","citybikes"->"Citybikes Sensors","emt"->"EMT Buses",
+    @select(field = sensorForm("system"), options = Seq("hl7"->"HL7","citybikes"->"Citybikes Sensors","emt"->"EMT Buses",
           "ijs"->"JSI Sensors","swissex"->"Swiss Experiment Sensors"))
   
     @textarea(field = sensorForm("query"), args = 'rows -> 22, 'cols -> 50)
+    @checkbox(field = sensorForm("customMapping"), args = '_label ->"Custom Mapping",'_showConstraints -> false, 'onclick -> "hide();") 
+    <!-- <input type="checkbox" id="mappingEnabled" name="mappingEnabled" onclick="hide();">Custom mapping</input>-->
+    
+    <div id="mappingDiv" class="hiddy">
+    @textarea(field = sensorForm("mapping"), args = 'rows -> 22, 'cols -> 100, '_label -> "mapping",'_id ->"mappingid")
+    </div>
     <!--  <input type="submit" value="Query">-->
+    <div>
     <button type="submit" name="action" value="query">Query</button>
-    <button type="submit" name="action" value="register">Register</button>
+    <button type="submit" name="action" value="register" disabled="true">Register</button>
+    </div>
   }
 </div>
     

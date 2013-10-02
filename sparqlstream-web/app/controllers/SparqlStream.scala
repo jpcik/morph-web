@@ -19,7 +19,7 @@ object SparqlStream extends Controller {
   def posequery(id:String)=Action { request =>
     val q=request.getQueryString("query")
     println(q)
-    val res=Sensor.query(id,q.get).asInstanceOf[SparqlResults]
+    val res=Sensor.query(id,q.get,None).asInstanceOf[SparqlResults]
     val os = new ByteArrayOutputStream()
     ResultSetFormatter.outputAsJSON(os,res.getResultSet)    
     Ok(new String(os.toByteArray))

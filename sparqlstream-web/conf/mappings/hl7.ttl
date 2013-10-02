@@ -22,20 +22,21 @@
                  rr:class hl7rim:observation,<http://purl.bioontology.org/ontology/SNOMEDCT/75367002> ];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_valueST;rr:objectMap [rr:template "{systolic} over {diastolic}"]];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_units;rr:objectMap [rr:constant "mmHg"]];
-  rr:predicateObjectMap [rr:predicate hl7rim:observation_actionNegationInd;rr:objectMap [rr:constant "true"]]
+  rr:predicateObjectMap [rr:predicate hl7rim:observation_actionNegationInd;rr:objectMap [rr:constant "true"]];
+  rr:predicateObjectMap [rr:predicate hl7rim:observation_effectiveTime; rr:objectMap [rr:column "timestamp"]]
 .
 
 :part a rr:TriplesMap;
   rr:logicalTable :hl7Stream;
-  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A100{patientid}/BC_ZSH2012A100{patientid}/PART"; 
+  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A10{patientid}/BC_ZSH2012A10{patientid}/PART"; 
                  rr:class hl7rim:participation; rr:graph hl7ld:patients.srdf];
   rr:predicateObjectMap [rr:predicate hl7rim:participation_observation;rr:objectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/obsno/{obsid}"]];
 .
 
 :patient a rr:TriplesMap;
   rr:logicalTable :hl7Stream;
-  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/roleno/BC_ZSH2012A100{patientid}/BC_ZSH2012A100{patientid}"; 
+  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/roleno/BC_ZSH2012A10{patientid}/BC_ZSH2012A10{patientid}"; 
                  rr:class hl7rim:patientrole; rr:graph hl7ld:patients.srdf];
-  rr:predicateObjectMap [rr:predicate hl7rim:role_participation;rr:objectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A100{patientid}/BC_ZSH2012A100{patientid}/PART"]];
+  rr:predicateObjectMap [rr:predicate hl7rim:role_participation;rr:objectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A10{patientid}/BC_ZSH2012A10{patientid}/PART"]];
 .
 
