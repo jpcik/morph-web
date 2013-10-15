@@ -17,7 +17,7 @@
 
 :device a rr:TriplesMap;
   rr:logicalTable :bikesTable;
-  rr:subjectMap [rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/SensingDevice/{id}"; 
+  rr:subjectMap [rr:template "http://transporte.linkeddata.es/id/BikeSystem/{systemid}/StationSensingDevice/{id}"; 
                  rr:class bicy:BikeStationSensingDevice];
   rr:predicateObjectMap [rr:predicate dcterms:identifier;rr:objectMap [rr:column "id"]];
   rr:predicateObjectMap [rr:predicate ssn:featureOfInterest;rr:objectMap [rr:constant bicy:free_bikes_feature]]
