@@ -1,12 +1,26 @@
-@(systemid:String,sensorForm:Form[QueryForm])
+@(systemid:String,sensorForm:Form[QueryForm])(implicit flash: Flash,request:Request[AnyContent])
 
 @import helper._
+@import collection.JavaConversions._
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Panels Demo</title>
 <link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
 <script type="text/javascript">
+if (window.addEventListener)
+{	
+	window.addEventListener("load", hide, false);
+}
+function encodeAndCopy(){
+	query = document.getElementById("queryText");
+	wsUriQuery=document.getElementById("restLink");
+	wsUriQuery.href="";
+	var wsPort = (window.location.port.toString() === "" ? "" : ":"+window.location.port)
+	var uri = "http://" + window.location.hostname + wsPort+"/@systemid/sparqlstream?query=";
+	wsUriQuery.text="REST"    
+	wsUriQuery.href=uri+(escape(query.value));
+}
+
 function hide() {
 	check = document.getElementById('customMapping').checked
 	elem = document.getElementById('mappingDiv')
@@ -16,184 +30,19 @@ function hide() {
 </script>
 <style type="text/css">
 
-body{
-    min-width:740px;
-}
-#right{
-  float: right;
-  width: 410px;
-  background-color: #fff;
-  border:1px solid #000;
-}
-#content{
-  margin-right:450px;
-  border:1px solid #000;
-  background-color: #fff;
-}
-div.hiddy{
-  display:none;
-  background-color: #fff;
-}
 </style>
 </head>
 
-@main("Sensor List") {
+@main(systemid) {
 
-<div id="right">
+@generic.querypanel(systemid) 
 
-@if(systemid==null || systemid.equals("citybikes")){
-<div class="panelcollapsed">
-  <h2>Citybikes query (free bikes)</h2>
-  <div class="panelcontent">
-  <pre><code> 
-PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
-PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX bicy: &lt;http://transporte.linkeddata.es/ontology/&gt;  
-SELECT ?avbikes ?obs ?av 
-FROM NAMED STREAM &lt;http://transporte.linkeddata.es/ontology/CityBikes.srdf&gt; [NOW - 30 S]
-WHERE {
-  ?obs a bicy:FreeBikesObservation.
-  ?obs ssn:observationResult ?output.
-  ?output bicy:hasAvailableBikesValue ?av.
-  ?av qudt:numericValue ?avbikes.
+@form(routes.Application.query(systemid)){
+
+@generic.queryform(systemid,sensorForm,"oneoff","Ask Query"){
+  <a id="restLink" href="#"></a>
+  <a href="#" onClick="encodeAndCopy();return false;">Set REST query</a>
 }
-</code></pre>
-  </div>
-</div>
-
-
-<div class="panelcollapsed">
-  <h2>Citybikes query (slots and bikes)</h2>
-  <div class="panelcontent">
-<pre><code> 
-PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
-PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX bicy: &lt;http://transporte.linkeddata.es/ontology/&gt;
-PREFIX time: &lt;http://www.w3.org/2006/time#&gt;
-PREFIX dcterms: &lt;http://purl.org/dc/terms/&gt;
-PREFIX xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;
-
-SELECT   ?sensdev ?avbikes ?freeslots ?tstamp
-
-FROM NAMED STREAM &lt;http://transporte.linkeddata.es/ontology/CityBikes.srdf&gt; [NOW - 300 S]
-WHERE {
-  ?obs ssn:observedBy ?sensdev .
-  ?obs a bicy:FreeBikesObservation.
-  ?obs ssn:observationResult ?output.
-  ?output bicy:hasAvailableBikesValue ?av.
-  ?av qudt:numericValue ?avbikes.
-?output bicy:hasFreeSlotsValue ?fs.
-  ?fs qudt:numericValue ?freeslots.
-  ?obs  ssn:observationResultTime ?i .
-  ?i time:inXSDDateTime ?tstamp
- }
- </code></pre>
-  </div>
-
-</div>
-
+   
+}   
 }
-
-@if(systemid==null || systemid.equals("emt")){
-<div class="panelcollapsed">
-  <h2>EMT query (bus time to stop)</h2>
-  <div class="panelcontent">
-  <pre><code> 
-PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt;
-PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX emt: &lt;http://emt.linkeddata.es/data#&gt;  
-SELECT ?timeto ?obs ?av 
-FROM NAMED STREAM &lt;http://emt.linkeddata.es/data#busstops.srdf&gt; [NOW - 30 S]
-WHERE {
-  ?obs a emt:BusObservation.
-  ?obs ssn:observationResult ?output.
-  ?output emt:timeToBusValue ?av.
-  ?av qudt:numericValue ?timeto.
-}
-</code></pre>
-  </div>
-</div>
-}
-
-
-@if(systemid==null || systemid.equals("swissex")){
-<div class="panelcollapsed">
-  <h2>Swissex query (windspeed)</h2>
-  <div class="panelcontent">
-<pre><code> 
-PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt; 
-PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX swissex: &lt;http://swissex.linkeddata.es/ontology#&gt;  
-SELECT ?obsval ?windspeed 
-FROM NAMED STREAM &lt;http://swissex.linkeddata.es/ontology#wannengrat.srdf&gt; [NOW - 8 DAY]
-WHERE {
-  ?output swissex:hasWindSpeedValue ?obsval. 
-  ?obsval qudt:numericValue ?windspeed.
-}
-</code></pre>
-  </div>
-
-</div>
-}
-
-@if(systemid==null || systemid.equals("ijs")){
-<div class="panelcollapsed">
-  <h2>ISJ observations query (humidity)</h2>
-  <div class="panelcontent">
-<pre><code> 
-PREFIX ssn: &lt;http://purl.oclc.org/NET/ssnx/ssn#&gt; 
-PREFIX qudt: &lt;http://data.nasa.gov/qudt/owl/qudt#&gt;
-PREFIX ijs: &lt;http://ijs.linkeddata.es/ontology#&gt;
-SELECT ?obsval ?humidity   
-FROM NAMED STREAM &lt;http://ijs.linkeddata.es/ontology#ijssensors.srdf&gt; [NOW - 2 MONTH]
-WHERE {
-  ?output ijs:hasHumidityValue ?obsval. 
-  ?obsval qudt:numericValue ?humidity.
-}
-</code></pre>
-  </div>
-</div>
-}
-
-@if(systemid==null || systemid.equals("hl7")){
-<div class="panelcollapsed">
-  <h2>Patients</h2>
-  <div class="panelcontent">
-<pre><code> 
-PREFIX hl7rim: &lt;http://hl7rim.eureca.org/CDM#&gt;
-SELECT ?obs ?sys 
-FROM NAMED STREAM &lt;http://patients.linkeddata.es/ontology/patients.srdf&gt; [NOW - 30 S]
-WHERE {
-  ?obs a hl7rim:observation.
-  ?obs hl7rim:observation_valueST ?sys.
-}
-</code></pre>
-  </div>
-</div>
-}
-
-
-</div>
-<div id="content">
-  <h2>Add query</h2>
-  @form(routes.Application.query){
-    @select(field = sensorForm("system"), options = Seq("hl7"->"HL7","citybikes"->"Citybikes Sensors","emt"->"EMT Buses",
-          "ijs"->"JSI Sensors","swissex"->"Swiss Experiment Sensors"))
-  
-    @textarea(field = sensorForm("query"), args = 'rows -> 22, 'cols -> 50)
-    @checkbox(field = sensorForm("customMapping"), args = '_label ->"Custom Mapping",'_showConstraints -> false, 'onclick -> "hide();") 
-    <!-- <input type="checkbox" id="mappingEnabled" name="mappingEnabled" onclick="hide();">Custom mapping</input>-->
-    
-    <div id="mappingDiv" class="hiddy">
-    @textarea(field = sensorForm("mapping"), args = 'rows -> 22, 'cols -> 100, '_label -> "mapping",'_id ->"mappingid")
-    </div>
-    <!--  <input type="submit" value="Query">-->
-    <div>
-    <button type="submit" name="action" value="query">Query</button>
-    <button type="submit" name="action" value="register" disabled="true">Register</button>
-    </div>
-  }
-</div>
-    
-}
-

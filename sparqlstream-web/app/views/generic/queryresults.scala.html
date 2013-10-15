@@ -1,0 +1,29 @@
+@(data:es.upm.fi.oeg.siq.sparql.SparqlResults,query:Option[String])
+  
+@import scala.collection.JavaConversions._  
+  
+@if(query.isDefined){
+  <h4>Query</h4>
+  <code>@query.get</code>
+}  
+  
+@if(data != null) {
+  <h4>Results</h4>  
+
+<div style="width:890px; height:500px; overflow:auto;">
+  <table class="newspaper-a">
+  <tr>
+    @data.getResultSet.getResultVars.map{ v=>
+      <th>@v</th>
+    }
+  </tr>
+  @data.getResultSet.map { r =>
+    <tr>
+    @r.varNames.map{v=>
+      <td>@r.get(v)</td>       
+    }
+    </tr>
+  }
+  </table>
+</div>
+  }

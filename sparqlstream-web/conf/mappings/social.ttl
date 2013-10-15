@@ -1,0 +1,27 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix morph: <http://oeg-upm.net/ns/morph#> .
+@prefix sr4ld: <http://streamreasoning.org/ontologies/social#>.
+@prefix srdata: <http://streamreasoning.org/data/>.
+@prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
+
+:meetingStream rr:tableName "meetings"; morph:pk "roomid,person".
+
+:obs a rr:TriplesMap;
+  rr:logicalTable :meetingStream;
+  rr:subjectMap [rr:template "http://streamreasoning.org/data/obs/id/{roomid}/{person}"; rr:graph srdata:social.srdf;
+                 rr:class sr4ld:Observation ];
+  rr:predicateObjectMap [rr:predicate sr4ld:who;rr:objectMap [rr:template "http://streamreasoning.org/data/person/id/{person}"]];
+  rr:predicateObjectMap [rr:predicate sr4ld:where;rr:objectMap [rr:template "http://streamreasoning.org/data/room/id/{roomid}"]];
+  .
+
+:part a rr:TriplesMap;
+  rr:logicalTable :hl7Stream;
+  rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/participno/{obsid}/BC_ZSH2012A10{patientid}/BC_ZSH2012A10{patientid}/PART"; 
+                 rr:class :participation; rr:graph :patients.srdf];
+  rr:predicateObjectMap [rr:predicate :participation_observation;rr:objectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/obsno/{obsid}"]];
+.
+
+

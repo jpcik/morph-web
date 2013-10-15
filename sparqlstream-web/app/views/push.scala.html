@@ -1,0 +1,139 @@
+@(systemid:String,sensorForm:Form[QueryForm])
+@import helper._
+
+<head>  
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  
+<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
+
+<script language="javascript" type="text/javascript">  
+var wsUri = "ws://echo.websocket.org/"; 
+var output;  
+
+function encodeAndCopy(){
+	query = document.getElementById("queryText");
+	wsUriQuery=document.getElementById("wsUri");
+	wsUriQuery.value="";
+	toggleTls();
+	wsUriQuery.value=wsUriQuery.value+(escape(query.value));
+}
+
+function init() { 
+	output = document.getElementById("output"); 
+	testWebSocket(); 
+}  
+function testWebSocket() { 
+	websocket = new WebSocket(wsUri); 
+	websocket.onopen = function(evt) { onOpen(evt) }; 
+	websocket.onclose = function(evt) { onClose(evt) }; 
+	websocket.onmessage = function(evt) { onMessage(evt) }; 
+	websocket.onerror = function(evt) { onError(evt) }; 
+}  
+function onOpen(evt) { 
+	writeToScreen("CONNECTED"); 
+	doSend("WebSocket rocks"); 
+}  
+function onClose(evt) { 
+	writeToScreen("DISCONNECTED"); 
+}  
+function onMessage(evt) { 
+	writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data+'</span>'); 
+	websocket.close(); 
+}  
+function onError(evt) { 
+	writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data); 
+}  
+function doSend(message) { 
+	writeToScreen("SENT: " + message);  
+	websocket.send(message); 
+}  
+function writeToScreen(message) { 
+	var pre = document.createElement("p"); 
+	pre.style.wordWrap = "break-word"; 
+	pre.innerHTML = message; 
+	output.appendChild(pre); 
+}  
+
+//window.addEventListener("load", init, false);  
+</script>
+<script src="@routes.Assets.at("javascripts/websocket.js")" type="text/javascript"></script>
+<script src="@routes.Assets.at("javascripts/browser.js")" type="text/javascript"></script>
+<script language="javascript" type="text/javascript">
+ 
+  function browserDetect()
+  {
+    if (window.addEventListener)
+    {
+      window.addEventListener("load", browserDetect, false);
+	}
+    else if (window.attachEvent)
+	{
+      window.attachEvent("onload", browserDetect)    
+	}		
+  }
+</script>
+<style>
+    
+  #webSocketSupp {
+	display: none;
+	line-height:none;
+  }
+  #noWebSocketSupp {
+	display: none;		
+  }
+</style>
+</head>
+
+
+@main(systemid) {
+
+@generic.querypanel(systemid) 
+
+
+@generic.queryform(systemid,sensorForm,"push","Push Query"){
+
+  <div id="webSocketSupp">
+    <div style="width: 300px; margin-left: 10px; padding: 5px; margin-top: 8px;">
+      This browser supports WebSocket.
+    </div>
+  </div>
+        
+  <div id="noWebSocketSupp">
+    <div style="width: 600px; margin-left: 10px;">
+      The browser doesn't have native support for WebSocket. 
+   </div>
+  </div>
+        
+  <div id="echo">
+    <div id="echo-config" style="float: left; width:50%;margin-top:8px;">
+      <strong>Location:</strong><br>
+      <input id="wsUri" size="40"><br>
+      <div style="display:none;">
+        <input type="checkbox" id="secureCb" onClick="toggleTls();">
+        <span id="secureCbLabel" style="font-size: smaller; color: black;">Use secure WebSocket (TLS)</span><br>
+      </div>
+      <button id="connect">Connect</button>
+      <button id="disconnect">Disconnect</button>
+      <button id="encode" onClick="encodeAndCopy();" class="wsButton">Set Query</button>
+
+      <div class="hiddy">
+      <strong>Message:</strong><br>
+      <input id="sendMessage" size="35" value="Some message">
+      <br>
+      <button id="send" class="wsButton">Send</button>
+      </div>
+    </div>
+    <div id="echo-log" style="float:right; margin-left: 20px; padding-left: 20px; width: 40%; border-left: solid 1px #cccccc;"> 
+      <button id="clearLogBut" style="position: relative; top: 3px;">Clear log</button>
+      <strong>Log:</strong>    
+      <div id="consoleLog" style="overflow-y:auto;width:300px;height:500px;"></div>
+    </div>
+    <div class="clearfix"></div>
+  </div> 
+      
+      
+      }      
+
+}

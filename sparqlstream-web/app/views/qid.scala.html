@@ -1,13 +1,46 @@
-@(qid:String,sensorForm:Form[QueryForm])
+@(systemid:String,sensorForm:Form[PullForm],data:es.upm.fi.oeg.siq.sparql.SparqlResults,query:Option[String])
 
 @import helper._
 @import es.upm.fi.oeg.siq.sparql.SparqlResults
 @import scala.collection.JavaConversions._
 
+@main(systemid) {
+  <h3>System: @systemid</h3>
+  @if(query.isDefined){
+    <h4>Query</h4>
+    <code>@query.get</code>
+  }  
+  @form(routes.Application.pull){
+    @sensorForm.globalError.map { error =>
+    <div><p class="error">@error.message</p></div>
+    }      
+  
+    @helper.input(sensorForm("system"),args= '_showConstraints -> false,'_label -> "") { (id, name, value, args) =>
+    <input type="hidden" name="@name" id="@id" value="@value">
+    }     
+    @helper.inputText(sensorForm("qid"))
+    <button type="submit" name="action" value="pull">Pull</button>
+    <button type="submit" name="action" value="remove">Remove</button>
+  }
+  @if(data != null) {
+  <h4>Results</h4>  
 
-@main("Results") {
-  <h3>Qid: @qid</h3>
-  <h4>Results</h4>
-     
+<div style="width:890px; height:500px; overflow:auto;">
+  <table class="newspaper-a">
+  <tr>
+    @data.getResultSet.getResultVars.map{ v=>
+      <th>@v</th>
+    }
+  </tr>
+  @data.getResultSet.map { r =>
+    <tr>
+    @r.varNames.map{v=>
+      <td>@r.get(v)</td>       
+    }
+    </tr>
+  }
+  </table>
+</div>
+  }    
 }
 

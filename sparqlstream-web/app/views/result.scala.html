@@ -1,23 +1,10 @@
-@(bindings:es.upm.fi.oeg.siq.sparql.SparqlResults,endpoint:String,sensorForm:Form[String])
+@(bindings:es.upm.fi.oeg.siq.sparql.SparqlResults,systemid:String,query:Option[String])
 
 @import helper._
 @import es.upm.fi.oeg.siq.sparql.SparqlResults
 @import scala.collection.JavaConversions._
 
-
-@main("Results") {
-  <h3>Endpoint: @endpoint</h3>
-  <h4>Results</h4>
-  <ul>
-@bindings.getResultSet.map { r =>
-  <li>
-  @r.varNames.map{v=>
-    @v : 
-    @r.get(v)
-    ,    
-  }
-  </li>
-} 
-</ul>   
+@main(systemid) {
+  <h3>System: @systemid</h3>
+  @generic.queryresults(bindings,query)
 }
-

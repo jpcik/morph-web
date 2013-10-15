@@ -38,134 +38,232 @@ import es.upm.fi.oeg.morph.stream.esper.EsperAdapter
 import es.upm.fi.oeg.morph.stream.gsn.GsnAdapter
 import es.upm.fi.oeg.morph.stream.evaluate.Mapping
 import scala.io.Source
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import play.api.libs.Comet
+import scala.concurrent._
+import scala.util.Random
+import akka.actor.ActorRef
+import com.hp.hpl.jena.query.ResultSetFormatter
+import akka.actor.Kill
 
 object Application extends Controller {
-  
-  val props= ParameterUtils.load(this.getClass().getClassLoader().getResourceAsStream("config/siq.properties"))
-  val gsns=props.getProperty("gsn.endpoints").split(",")
-  val mapGsns=gsns.map(g=>g->("mappings/"+g+".ttl",props.getProperty("gsn.endpoint."+g))).toMap
+  val conf=ConfigFactory.load
+  val users=new collection.mutable.HashMap[String,User] 
+  val gsns=conf.getStringList("gsn.systemids")
+  val espers=conf.getStringList("esper.systemids")
+  val queries=(gsns++espers).map(a=>a->conf.getStringList("morph.streams."+a+".queries").toSeq).toMap
+  val allqueries=queries.values.flatten.toSeq
+  val systems=(gsns++espers).map(s=>s->s)
+  val adapter=(gsns.map{g=>g->new GsnAdapter(g)}++
+              espers.map(e=>e->new EsperAdapter(Global.esper.system,e))).toMap
+  val mappings=(gsns++espers).map(g=>g->new URI("mappings/"+g+".ttl")).toMap
   val taskForm=Form(mapping("system"->nonEmptyText,"action"->nonEmptyText,"query"->nonEmptyText,
-      "customMapping"->boolean, "mapping"->optional(text))(QueryForm.apply)(QueryForm.unapply) )
+      "customMapping"->boolean, "showQuery"->boolean,"mapping"->optional(text))(QueryForm.apply)(QueryForm.unapply) )
+  val pullForm=Form(mapping("system"->nonEmptyText,"action"->nonEmptyText,
+      "qid"->nonEmptyText)(PullForm.apply)(PullForm.unapply) )
   val initForm=Form(tuple("system"->nonEmptyText,"query"->nonEmptyText))
-  def index = Action {
+  
+  def index = Action {implicit request=>
     Ok(views.html.index(List("Your new application is ready."),initForm))
   }
  
-  def dipp = WebSocket.async[String] { request => 
- Logger.debug("trilololo") 
-  // Log events to the console
-  val dd=Akka.system.actorOf(Props[Drop])
-
-  val in = Iteratee.foreach[String](println).mapDone { _ =>
-    println("Disconnected")
-    dd ! Stop()
-    dd ! PoisonPill
+  def listen(id:String) = Action {
+    val mapping=serializedMapping(id) 
+    Ok(views.html.push(id,taskForm.fill(QueryForm(id,"","",false,false,Some(mapping)))))
+  }
+     
+  def query(id:String)=Action{implicit request =>
+    taskForm.bindFromRequest.fold(        
+      errors =>                
+        BadRequest(views.html.query(errors.data("system"),errors)),
+      vals =>{
+        Logger.debug("getting form "+vals)
+        val mapping=if (vals.customMapping) vals.mapping else None
+        try {
+          val innerquery=if (!vals.showQuery) None else 
+            Sensor.rewriteOnly(vals.systemid,vals.query,mapping)
+          val r =Sensor.query(vals.systemid,vals.query,mapping)            
+          Ok(views.html.result(r.asInstanceOf[SparqlResults],vals.systemid,innerquery))
+        }
+        catch {case e:Exception=>
+          BadRequest(views.html.query(vals.systemid,taskForm.fill(vals).withGlobalError(e.getMessage)))
+        }
+      }
+    )
   }
 
-//dd ! PoisonPill
- // Send a single 'Hello!' message
+  
+  def register(id:String)=Action{implicit request =>
+    taskForm.bindFromRequest.fold(        
+      errors =>                
+        BadRequest(views.html.register(errors.data("system"),errors)),
+      vals =>{
+        Logger.debug("getting form "+vals)
+        val mapping=if (vals.customMapping) vals.mapping else None
+        try {
+          val innerquery=if (!vals.showQuery) None 
+          else Sensor.rewriteOnly(vals.systemid, vals.query, mapping)
+          val id =Sensor.register(vals.systemid,vals.query,mapping)  
+          regQuery(id, request)
+          Ok(views.html.qid(id,pullForm.fill(PullForm(vals.systemid,"pull",id)),null,innerquery))            
+        }
+        catch {case e:Exception=>
+          BadRequest(views.html.register(vals.systemid,taskForm.fill(vals).withGlobalError(e.getMessage)))
+        }
+      }
+    )
+  }
+
+  
+  private def remQuery(qid:String,request:RequestHeader)={
+    val ip=request.remoteAddress
+    val qids=users.getOrElse(ip, User(ip,Seq())).qids
+    users.update(ip, User(ip, qids.filterNot(_==qid)))
+  }
+  
+  private def regQuery(qid:String,request:RequestHeader)={
+    val ip=request.remoteAddress
+    val qids=users.getOrElse(ip, User(ip,Seq())).qids
+    users.update(ip, User(ip, qids++Seq(qid)))
+  }
+
+  private def serializedMapping(systemid:String)={    
+    val mappingStream=getClass.getClassLoader.getResourceAsStream(mappings(systemid).toString)    
+    Source.fromInputStream(mappingStream).getLines.mkString("\n")
+  }
+  
+  def posequery(id:String)=Action{ implicit request =>
+    val mapping=serializedMapping(id) 
+    Ok(views.html.query(id,taskForm.fill(QueryForm(id,"","",false,false,Some(mapping)))))    
+  }
+
+  def registerquery(id:String)=Action{ implicit request =>
+    val mapping=serializedMapping(id) 
+    Ok(views.html.register(id,taskForm.fill(QueryForm(id,"","",false,false,Some(mapping)))))    
+  }
+    
+  def posequeryall=Action{ implicit request =>   
+    Ok(views.html.query("",taskForm.fill(QueryForm("","","",false,false,None))))
+  }
+ 
+  def pull=Action{implicit request =>
+    pullForm.bindFromRequest.fold(        
+      errors =>                
+        BadRequest(views.html.qid(errors.data("system"),errors,null,None)),
+      vals =>{
+        Logger.debug("getting form "+vals)
+        if (vals.action.equals("pull")){
+          try {
+          val r =Sensor.pull(vals.systemid, vals.qid)
+          Ok(views.html.qid(vals.systemid,
+              pullForm.fill(PullForm(vals.systemid,vals.action,vals.qid)),r,None))
+          } catch {case e:Exception=>
+            BadRequest(views.html.qid(vals.systemid,pullForm.fill(vals).withGlobalError(e.getMessage),null,None))}
+        }
+        else {
+          Sensor.remove(vals.systemid,vals.qid)
+          remQuery(vals.qid, request)
+          val mapping=serializedMapping(vals.systemid)
+          Ok(views.html.register(vals.systemid,
+              taskForm.fill(QueryForm(vals.systemid,"","",false,false,Some(mapping)))))   
+        }
+      }
+    )
+  }
+
+  
+  val f=Promise[Option[String]]()
+  
+  lazy val clock: Enumerator[String] = {    
+    import java.util._
+    import java.text._
+    
+    val dateFormat = new SimpleDateFormat("HH mm ss")    
+    Enumerator.generateM {
+      f.future
+      //Promise.timeout(Some(dateFormat.format(new Date)), 1000 milliseconds)
+    }
+  }  
+  def tripp =  Action {
+    val events = clock//Enumerator("kiki", "foo", "bar")
+    Ok.stream(events &> Comet(callback = "console.log"))
+    //Ok.stream(Enumerator("kiki", "foo", "bar").andThen(Enumerator.eof))
+  }
+  
+  //Test websocket only
+  def push = WebSocket.async[String] { request =>try{
+    val query=request.queryString("query").head
+    Logger.debug("Web socket got: "+query) 
+    Logger.debug("Now starting query listener")
+
+    val dd=Akka.system.actorOf(Props(new Drop))
+
+    val rec = new ResultsReceiver(dd)
+    val qid=try Sensor.listen("social", query, rec)
+    catch {case e:Exception=> throw new Exception("could not create: "+e)} 
+    
+    val in = Iteratee.foreach[String]{s=>
+      println("received meanwhile: "+s) 
+    }.mapDone { _ =>
+      println("Disconnected")
+      dd ! Stop()
+      dd ! PoisonPill
+    }
+
      implicit val timeout = Timeout(5 second)
-     //val out=ask(dd,Subs()).mapTo[Enumerator[String]]
-     (dd ? Subs()).map{
+      (dd ? Subs(qid)).map{
        case Accpt(e)=>(in,e)
      }
-    //Enumerator("Helopopopolo!")
-  
-  //(in,Await.result(out,timeout.duration))
-}
-  
-    
-  def query=Action{implicit request =>
-    taskForm.bindFromRequest.fold(
-        errors =>BadRequest(views.html.query(  null,errors)),
-        vals =>{
-          Logger.debug("getting form "+vals)
-          val mapping=if (vals.customMapping) vals.mapping else None
-          if (vals.action.equals("query")){            
-            val r =Sensor.query(vals.systemid,vals.query,mapping)
-            Ok(views.html.result(r.asInstanceOf[SparqlResults],mapGsns(vals.systemid)._2,null))
-          }
-          else{
-            val rec=new ResultsReceiver
-            val r =Sensor.register(vals.systemid,vals.query)          
-            Ok(views.html.qid(r,taskForm))
-          }
-            
-        }
-        )
+  }
+  catch {
+    case e:Exception=>           
+        future {(Iteratee.foreach[String]{println},
+        Enumerator("Fatal Error, please disconnect and try again.","Error: "+e.getMessage).andThen(Enumerator.eof))}
+    case a:Throwable=>throw a 
+  }
+     // (in,Await.result(out,timeout.duration))
   }
 
-  def posequery(id:String)=Action{
-    val (map,uri)=mapGsns(id)
-    val mapIS=getClass.getClassLoader.getResourceAsStream(map)
-    println("input "+mapIS+" "+map)
-    val mapping=Source.fromInputStream(mapIS).getLines.mkString("\n")
-
-    Ok(views.html.query(id,taskForm.fill(QueryForm(id,"","",false,Some(mapping)))))    
+  def toJson(res:SparqlResults)={
+    val os = new ByteArrayOutputStream
+    ResultSetFormatter.outputAsJSON(os,res.getResultSet)    
+    new String(os.toByteArray)
   }
- 
-  def posequeryall=Action{
-
-    Ok(views.html.query(null,taskForm.fill(QueryForm("","","",false,None))))
-  }
- 
-class ResultsReceiver extends StreamReceiver{   
-  override def receiveData(s:SparqlResults){   
-    Logger.debug("got: "+EvaluatorUtils.serializeJson(s))
-  }
-}
-
-  
 }
 
 case class Accpt(e:Enumerator[String]) 
 case class Msg(m:String)
-case class Subs()
+case class Subs(qid:String)
 case class Stop()
 
 class Drop extends Actor{
- 
-  lazy val schedule={
-    import context.dispatcher
-    context.system.scheduler.schedule(0 seconds, 5 seconds){
-      println("charafa")
-      self ! Msg("ralalala")
-      
-    }
-  }
+  var queryId:String=_ 
+  def stopQuery=
+    if (queryId!=null) Sensor.remove("social", queryId)
   
   val (enum,channel)=Concurrent.broadcast[String]
   def receive={
-    case Subs()=>
-      schedule
+    case Subs(qid)=>
+      queryId=qid
       sender ! Accpt(enum)
-    case Msg(m)=>boradcast(m)
-    case Stop()=>schedule.cancel
+    case Msg(m)=>broadcast(m)
+    case Stop()=>stopQuery
     case p=> println("mjmjm"+p)
   }
   
-  def boradcast(m:String)={
-    channel.push(m)
-  }
+  def broadcast(m:String)=channel.push(m)
 }
 
 object Sensor{
-  val props= ParameterUtils.load(getClass.getClassLoader().getResourceAsStream("config/siq.properties"))
   val sensors=new ArrayBuffer[String]
   def all():List[String]=sensors.toList
   def query(system:String,query:String,mappingStr:Option[String])={
-    val (mapping,uri)=Application.mapGsns(system)
-    println("got "+mapping)
-    val props1= new Properties
-    props1++=props
-    props1.put("gsn.endpoint",uri)
-    
-    //val gsn=new EsperAdapter(Global.esper.system)
-    val gsn=new GsnAdapter(system)
-	val mappingUri = new URI(mapping)    
-    val resulto=
-      if (mappingStr.isDefined) gsn.executeQuery(query,Mapping(mappingStr.get))
-	  else gsn.executeQuery(query,Mapping(mappingUri))
+    val mapping=
+      if (mappingStr.isDefined) Mapping(mappingStr.get)
+      else Mapping(Application.mappings(system))
+    val adapter=Application.adapter(system)
+    val resulto= adapter.executeQuery(query,mapping)
 	resulto match{
       case sp:SparqlResults=>sp//sparql(sp)
       case rdf:Model=>rdf//.toString//write(System.out,RDFFormat.TTL)
@@ -173,31 +271,36 @@ object Sensor{
     
   }
 
-def register(system:String,query:String)={
-    val (mapping,uri)=Application.mapGsns(system)
-    println("got "+mapping)
-    //val props1= new Properties
-    //props1++=props
-    //props1.put("gsn.endpoint",uri)
-    
-    val gsn=new EsperAdapter(Global.esper.system)
-	val mappingUri = new URI(mapping.toString)    
-    val resulto=gsn.registerQuery(query,Mapping(mappingUri))
-	
-	resulto 
-    
+  def remove(system:String,qid:String)= {
+    Application.adapter(system).removeQuery(qid)    
+  }
+  
+  def register(system:String,query:String,mappingStr:Option[String])={
+    val mapping=
+      if (mappingStr.isDefined) Mapping(mappingStr.get)
+      else Mapping(Application.mappings(system))
+    val adapter=Application.adapter(system)	    
+    val resulto=adapter.registerQuery(query,mapping)
+    //catch {case e:Exception=>throw new IllegalArgumentException("Query could not be registered.",e)}
+	resulto     
   }
 
+  def pull(system:String,qid:String)={
+    Application.adapter(system).pull(qid)
+  }
 
-def listen(system:String,query:String,rec:StreamReceiver)={
-    val (mapping,uri)=Application.mapGsns(system)    
-    println("got "+mapping)
-    val gsn=new EsperAdapter(Global.esper.system)
-	val mappingUri = new URI(mapping)    
-    val resulto=gsn.listenToQuery(query,Mapping(mappingUri),rec)
-	    
-	resulto 
-    
+  def listen(system:String,query:String,rec:StreamReceiver)={
+    val mappingUri=Application.mappings(system)    
+    val gsn=Application.adapter(system)
+    val resulto=gsn.listenToQuery(query,Mapping(mappingUri),rec)	    
+	resulto     
+  }
+  
+  def rewriteOnly(system:String,query:String,mappingStr:Option[String])={
+    val mapping=
+      if (mappingStr.isDefined) Mapping(mappingStr.get)
+      else Mapping(Application.mappings(system))
+    Application.adapter(system).rewriteSerialize(query, mapping)
   }
   
   def writeModel(model:Model)={
@@ -206,22 +309,16 @@ def listen(system:String,query:String,rec:StreamReceiver)={
     new String(out.toByteArray)
   }
  
-  /*
- private implicit def binding2String(b:Binding):String=
-   b.getName+":" +
-     (if (b.getUri!=null) b.getUri else b.getLiteral.getContent)
- 
- def sparql(sparql:Sparql)={
-   sparql.getResults().getResult().map{r=>
-     r.getBinding().map{b=>binding2String(b)}.mkString(",\t")
-   }.mkString(",\n")
-   /*
-    val jax = JAXBContext.newInstance(classOf[Sparql]) ;
- 	val m = jax.createMarshaller();
- 	val sr = new StringWriter();
- 	m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, java.lang.Boolean.TRUE);
- 	m.marshal(sparql,sr);
- 	sr.toString*/
-  }*/
 
+}
+
+case class User(ip:String,qids:Seq[String])
+
+//class ResultsReceiver(pp:Promise[Option[String]]) extends StreamReceiver{   
+class ResultsReceiver(actor:ActorRef) extends StreamReceiver{
+  override def receiveData(s:SparqlResults):Unit={
+    val res=Application.toJson(s)
+    Logger.debug("got: "+res)
+    actor ! Msg(res)    
+  }
 }
