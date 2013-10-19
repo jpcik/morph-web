@@ -11,7 +11,7 @@ object ApplicationBuild extends Build {
       // Add your project dependencies here,
       "es.upm.fi.oeg.morph.streams" % "adapter-esper" % "1.0.9",
       "es.upm.fi.oeg.morph.streams" % "adapter-gsn" % "1.0.6",
-      ("es.upm.fi.oeg.morph.streams" % "wrappers" % "1.0.5")
+      ("es.upm.fi.oeg.morph.streams" % "wrappers" % "1.0.6")
       .exclude("org.slf4j", "slf4j-log4j12")
         //"ch.qos.logback" % "logback-classic" % "1.0.9"
     )

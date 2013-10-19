@@ -5,11 +5,12 @@
 http://www.espertech.com/schema/esper
 http://www.espertech.com/schema/esper/esper-configuration-2.0.xsd">
 <auto-import import-name="es.upm.fi.oeg.morph.stream.esper.SparqlGet"/>
-<event-type name="meetings">
+<event-type name="detections">
   <java-util-map>
     <map-property name="id" class="string"/>
     <map-property name="roomid" class="string"/>
     <map-property name="person" class="string"/>
+    <map-property name="time" class="string"/>
   </java-util-map>
 </event-type>
 <event-type name="hl7">

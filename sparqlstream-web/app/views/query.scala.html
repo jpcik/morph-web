@@ -17,7 +17,7 @@ function encodeAndCopy(){
 	wsUriQuery.href="";
 	var wsPort = (window.location.port.toString() === "" ? "" : ":"+window.location.port)
 	var uri = "http://" + window.location.hostname + wsPort+"/@systemid/sparqlstream?query=";
-	wsUriQuery.text="REST"    
+	wsUriQuery.innerHTML="REST"    
 	wsUriQuery.href=uri+(escape(query.value));
 }
 
