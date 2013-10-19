@@ -12,17 +12,19 @@
 
 <div style="width:890px; height:500px; overflow:auto;">
   <table class="newspaper-a">
+  @defining(data.getResultSet.getResultVars) { resvars =>
   <tr>
-    @data.getResultSet.getResultVars.map{ v=>
+    @resvars.map{ v=>
       <th>@v</th>
     }
   </tr>
   @data.getResultSet.map { r =>
     <tr>
-    @r.varNames.map{v=>
+    @resvars.map{v=>
       <td>@r.get(v)</td>       
     }
     </tr>
+  }
   }
   </table>
 </div>
