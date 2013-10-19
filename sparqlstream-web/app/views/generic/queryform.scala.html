@@ -32,7 +32,7 @@ function hide() {
       
     @content
     
-    @textarea(field = queryForm("query"), args = 'rows -> 15, 'cols -> 60, '_label -> "SPARQLStream query", 'id -> "queryText")
+    @textarea(field = queryForm("query"), args = 'rows -> 15, 'cols -> 50, '_label -> "SPARQLStream query", 'id -> "queryText")
     @checkbox(field = queryForm("showQuery"), args = '_label ->"Show underlying query",'_showConstraints -> false)    
     @if(mode=="push"){
     <div id="mappingCheckDiv" class="hiddy">
