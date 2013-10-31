@@ -23,6 +23,13 @@
   rr:predicateObjectMap [rr:predicate ssn:featureOfInterest;rr:objectMap [rr:constant emt:time_to_bus]]
 .
 
+:busline a rr:TriplesMap;
+  rr:logicalTable :emtStream;
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}";
+                  rr:class emt:BusLine; rr:graph emt:busstops.srdf ];
+  rr:predicateObjectMap [ rr:predicate emt:lineNumber;rr:objectMap [rr:column "{lineid}"]];
+.
+
 :timeToBusValue a rr:TriplesMap;
   rr:logicalTable :emtStream;
   rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/timeToBusValue/{timed}";	

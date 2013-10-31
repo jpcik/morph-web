@@ -31,6 +31,17 @@ http://www.espertech.com/schema/esper/esper-configuration-2.0.xsd">
     <map-property name="distancetobus" class="string"/>
   </java-util-map>
 </event-type>
+<event-type name="weathermap">
+  <java-util-map>
+    <map-property name="systemid" class="string"/>
+    <map-property name="stationid" class="string"/>
+    <map-property name="temperature" class="double"/>
+    <map-property name="temperature_max" class="double"/>
+    <map-property name="temperature_min" class="double"/>
+    <map-property name="humidity" class="double"/>
+    <map-property name="timestamp" class="string"/>
+  </java-util-map>
+</event-type>
 <event-type name="wunderground">
   <java-util-map>
     <map-property name="stationId" class="string"/>
