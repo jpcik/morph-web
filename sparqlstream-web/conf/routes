@@ -7,9 +7,14 @@ GET     /                           controllers.Application.index
 GET     /maps                       controllers.QueryMetadata.maps
 GET     /query                      controllers.Application.posequeryall
 GET     /query/:id                  controllers.Application.posequery(id: String)
+GET     /register/:id               controllers.Application.registerquery(id: String)
 GET     /:id/sparqlstream           controllers.SparqlStream.posequery(id: String)
-GET     /dipp                       controllers.Application.dipp
-POST    /query                      controllers.Application.query
+GET     /push                       controllers.Application.push
+GET     /listen/:id                 controllers.Application.listen(id:String)
+POST    /register/:id               controllers.Application.register(id:String)
+POST    /query/:id                  controllers.Application.query(id:String)
+POST    /query/                     controllers.Application.query(id="")
+POST    /pull                       controllers.Application.pull
 POST    /searchSensors              controllers.QueryMetadata.searchSensors
 
 # Map static resources from the /public folder to the /assets URL path

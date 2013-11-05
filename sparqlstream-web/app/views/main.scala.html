@@ -1,15 +1,43 @@
-@(title: String)(content: Html)
-
+@(id: String)(content: Html)
 <!DOCTYPE html>
-
 <html>
     <head>
-        <title>@title</title>
+        <title>Morph-streams Web</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        <script>
+        function about(){
+        	document.getElementById("simplediv").style.display='block'
+        }
+        function noabout(){
+        	document.getElementById("simplediv").style.display='none'
+        }
+        </script>
     </head>
     <body>
-        @content
+    
+    <div id="simplediv" onclick="noabout();" style="top:30%;left:35%;position:fixed;background-color:white;border:2px solid black;display:none;height:200px;">
+    <img src="@routes.Assets.at("images/morph.png")" style="width:300px;"/><br/>
+    Morph-streams <br/>
+    <a href="http://www.oeg-upm.net">Ontology Engineering Group</a><br/>
+    jpc<br/>
+    <a onclick="noabout();return false;" href="#">Close</a>
+    </div>
+
+    <ul id="menu-bar">
+    <li><img src="@routes.Assets.at("images/morph.png")" style="width:100px;"/></li>
+      <li><a href="/">Home</a></li>
+      @if(Application.espers.contains(id)){
+      <li><a href="/register/@id">Register Query</a></li>
+      <li><a href="/listen/@id">Listen Push</a></li>
+      }
+      @if(Application.gsns.contains(id)){
+      <li><a href="/query/@id">One-Off Query</a></li>
+      }
+      <li><a onclick="about();return false;" href="#">About</a></li>
+    </ul>
+    
+    @content
     </body>
 </html>

@@ -1,0 +1,19 @@
+@(systemid:String,sensorForm:Form[QueryForm])(implicit flash: Flash,request:Request[AnyContent])
+
+@import helper._
+@import collection.JavaConversions._
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
+</head>
+
+@main(systemid) {
+
+@generic.querypanel(systemid) 
+@form(routes.Application.register(systemid)){
+@generic.queryform(systemid,sensorForm,"pull","Register Query"){
+}
+   
+}
+}

@@ -1,0 +1,57 @@
+@(systemid:String,queryForm:Form[QueryForm],mode:String,title:String)(content:Html)
+
+@import helper._
+@import collection.JavaConversions._
+
+<script type="text/javascript">
+if (window.addEventListener)
+{	
+	window.addEventListener("load", hide, false);
+}
+function hide() {
+	check = document.getElementById('customMapping').checked
+	elem = document.getElementById('mappingDiv')
+	if (check)	elem.style.display = 'block';
+	else elem.style.display = 'none';
+}
+</script>
+
+<div id="content">
+  <h2>@title</h2>  
+    @queryForm.globalError.map { error =>
+    <div><p class="error">@error.message</p></div>
+    }      
+    <h3>System: @systemid</h3>
+    @if(systemid!=null && systemid !="") {
+      <div id="systemSelDiv" class="hiddy">
+    } else {
+      <div id="systemSelDiv">
+    }
+        @select(field = queryForm("system"), options = Application.systems)
+      </div>
+      
+    @content
+    
+    @textarea(field = queryForm("query"), args = 'rows -> 15, 'cols -> 50, '_label -> "SPARQLStream query", 'id -> "queryText")
+    @checkbox(field = queryForm("showQuery"), args = '_label ->"Show underlying query",'_showConstraints -> false)    
+    @if(mode=="push"){
+    <div id="mappingCheckDiv" class="hiddy">
+    } else {
+    <div id="mappingCheckDiv" >
+    }
+    @checkbox(field = queryForm("customMapping"), args = '_label ->"Custom Mapping",'_showConstraints -> false, 'onclick -> "hide();")
+    </div> 
+    <div id="mappingDiv" class="mappingText">
+      @textarea(field = queryForm("mapping"), args = 'rows -> 22, 'cols -> 80, '_label -> "R2RML mapping",'_id ->"mappingid")
+    </div>    
+    
+    <div>
+    @if(mode=="oneoff"){
+      <button type="submit" name="action" value="query">Query</button>
+    } 
+    @if(mode=="pull"){
+      <button type="submit" name="action" value="register" disambled="true">Register</button>
+    }
+    </div>
+  
+</div>

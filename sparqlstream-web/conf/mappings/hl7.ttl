@@ -24,7 +24,11 @@
   rr:predicateObjectMap [rr:predicate hl7rim:observation_valueST;rr:objectMap [rr:template "{systolic} over {diastolic}"]];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_units;rr:objectMap [rr:constant "mmHg"]];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_actionNegationInd;rr:objectMap [rr:constant "true"]];
+<<<<<<< HEAD
   rr:predicateObjectMap [rr:predicate hl7rim:observation_effectiveTime;rr:objectMap [rr:column "timestamp"]]
+=======
+  rr:predicateObjectMap [rr:predicate hl7rim:observation_effectiveTime; rr:objectMap [rr:column "timestamp"]]
+>>>>>>> b55a1adfa87049b7dcb26e0621a7966e3a375ee9
 .
 
 :part a rr:TriplesMap;

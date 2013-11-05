@@ -1,0 +1,21 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix morph: <http://oeg-upm.net/ns/morph#> .
+@prefix sr4ld: <http://streamreasoning.org/ontologies/social#>.
+@prefix srdata: <http://streamreasoning.org/data/>.
+@prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
+:detecStream rr:tableName "detections"; morph:pk "roomid,person,time".
+
+:obs a rr:TriplesMap;
+  rr:logicalTable :detecStream;
+  rr:subjectMap [
+    rr:class sr4ld:Observation;
+    rr:graph srdata:social.srdf;
+    rr:template "http://streamreasoning.org/data/obs/id/{roomid}/{person}/{time}";];
+  rr:predicateObjectMap [ rr:predicate sr4ld:who;
+    rr:objectMap [rr:template "http://streamreasoning.org/data/person/id/{person}"]];
+  rr:predicateObjectMap [rr:predicate sr4ld:where;
+    rr:objectMap [rr:template "http://streamreasoning.org/data/room/id/{roomid}"]];
+  .
+
+
