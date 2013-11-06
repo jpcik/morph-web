@@ -19,7 +19,7 @@ Then you can:
 
 ##Use cases
 
-Follow the [tutorial](Tutorial:-Morph-streams) to learn about:
+Follow the [tutorial](https://github.com/jpcik/morph-web/wiki/Tutorial:-Morph-streams) to learn about:
 * Registering a query
 * Pulling data from a registered query
 * Pushing data with WebSockets
