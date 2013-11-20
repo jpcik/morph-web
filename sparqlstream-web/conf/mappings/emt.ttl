@@ -43,7 +43,7 @@
 	   		      rr:class emt:DistanceToBusValue; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [ rr:predicate qudt:numericValue;rr:objectMap [rr:column "distancetobus"]];     		   
 .		   
-      		        	      		       	      		        		        
+      		        	      		       	      		        		      		        	      		       	      		        	        
 :busOutput a rr:TriplesMap;
   rr:logicalTable :emtStream;
   rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}/output/{timed}";
@@ -67,6 +67,8 @@
     			   rr:class emt:BusObservation; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedProperty ]; 
       		             rr:objectMap    [ rr:constant emt:time_to_bus ]];      		   
+  rr:predicateObjectMap [rr:predicate emt:busline ;
+    					 rr:objectMap    [ rr:parentTriplesMap :busline; rr:joinCondition "" ]];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedBy ];
     					 rr:objectMap    [ rr:parentTriplesMap :device; rr:joinCondition "" ]];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observationResult ]; 

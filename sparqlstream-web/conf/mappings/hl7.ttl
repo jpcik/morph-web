@@ -13,17 +13,22 @@
 @prefix morph: <http://oeg-upm.net/ns/morph#> .
 @prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
 @prefix hl7ld: <http://patients.linkeddata.es/ontology/>.
+@prefix snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>.
 
 :hl7Stream rr:tableName "hl7"; morph:pk "obsid".
 
 :obs a rr:TriplesMap;
   rr:logicalTable :hl7Stream;
   rr:subjectMap [rr:template "http://kandel.dia.fi.upm.es:8084/resource/obsno/{obsid}"; rr:graph hl7ld:patients.srdf;
-                 rr:class hl7rim:observation,<http://purl.bioontology.org/ontology/SNOMEDCT/75367002> ];
+                 rr:class snomed:75367002,hl7rim:observation];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_valueST;rr:objectMap [rr:template "{systolic} over {diastolic}"]];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_units;rr:objectMap [rr:constant "mmHg"]];
   rr:predicateObjectMap [rr:predicate hl7rim:observation_actionNegationInd;rr:objectMap [rr:constant "true"]];
+
+
+
   rr:predicateObjectMap [rr:predicate hl7rim:observation_effectiveTime; rr:objectMap [rr:column "timestamp"]]
+
 .
 
 :part a rr:TriplesMap;
