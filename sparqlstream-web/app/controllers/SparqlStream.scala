@@ -12,6 +12,7 @@ import com.typesafe.config.ConfigFactory
 import es.upm.fi.oeg.morph.stream.evaluate.Mapping
 import collection.JavaConversions._
 import java.net.URI
+import com.hp.hpl.jena.rdf.model.Model
 
 object SparqlStream extends Controller {  
   val conf=ConfigFactory.load
@@ -23,10 +24,15 @@ object SparqlStream extends Controller {
     val q=request.getQueryString("query")
     println(q)
     //val mapping=Mapping(mappings(id))
-    val res=Sensor.query(id,q.get,None).asInstanceOf[SparqlResults]
-    val os = new ByteArrayOutputStream()
-    ResultSetFormatter.outputAsJSON(os,res.getResultSet)    
-    Ok(new String(os.toByteArray))
+    val res=Sensor.query(id,q.get,None) 
+    res match {
+      case sparqlres:SparqlResults=>
+        val os = new ByteArrayOutputStream()
+        ResultSetFormatter.outputAsJSON(os,sparqlres.getResultSet)    
+        Ok(new String(os.toByteArray))
+      case rdf:Model=>
+        Ok(Sensor.writeModel(rdf))
+    }
   }
  
 

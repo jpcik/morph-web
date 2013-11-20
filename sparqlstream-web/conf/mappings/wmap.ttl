@@ -13,15 +13,17 @@
 @prefix void: <http://rdfs.org/ns/void#>.
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix morph: <http://oeg-upm.net/ns/morph#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
 
 :weatherStream rr:tableName "weathermap"; morph:pk "stationid,timestamp".
 
 :device a rr:TriplesMap; rr:logicalTable :weatherStream;
-  rr:subjectMap [rr:template "http://meteo.linkeddata.es/id/SensingDevice/{stationid}"; 
+  rr:subjectMap [rr:template "http://meteo.linkeddata.es/id/SensingDevice/{timestamp}{stationid}"; 
                  rr:class ssn:SensingDevice];
   rr:predicateObjectMap [rr:predicate dcterms:identifier;rr:objectMap [rr:column "stationid"]];
-  rr:predicateObjectMap [rr:predicate dcterms:lat;rr:objectMap [rr:column "stationid"]];
+  rr:predicateObjectMap [rr:predicate geo:lat;rr:objectMap [rr:column "lat"]];
+  rr:predicateObjectMap [rr:predicate geo:long;rr:objectMap [rr:column "lon"]];
 .
 
 :resultTime a rr:TriplesMap; rr:logicalTable :weatherStream;

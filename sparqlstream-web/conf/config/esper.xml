@@ -35,6 +35,8 @@ http://www.espertech.com/schema/esper/esper-configuration-2.0.xsd">
   <java-util-map>
     <map-property name="systemid" class="string"/>
     <map-property name="stationid" class="string"/>
+    <map-property name="lat" class="double"/>
+    <map-property name="lon" class="double"/>
     <map-property name="temperature" class="double"/>
     <map-property name="temperature_max" class="double"/>
     <map-property name="temperature_min" class="double"/>

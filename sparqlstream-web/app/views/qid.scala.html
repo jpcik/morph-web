@@ -1,4 +1,4 @@
-@(systemid:String,sensorForm:Form[PullForm],data:es.upm.fi.oeg.siq.sparql.SparqlResults,query:Option[String])
+@(systemid:String,sensorForm:Form[PullForm],data:es.upm.fi.oeg.siq.sparql.SparqlResults,rdf:com.hp.hpl.jena.rdf.model.Model,query:Option[String])
 
 @import helper._
 @import es.upm.fi.oeg.siq.sparql.SparqlResults
@@ -20,7 +20,7 @@
     <button type="submit" name="action" value="remove">Remove</button>
   }
   
-   @generic.queryresults(data,query)
+   @generic.queryresults(data,rdf,query)
   
 }
 

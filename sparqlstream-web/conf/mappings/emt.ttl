@@ -11,6 +11,7 @@
 @prefix void: <http://rdfs.org/ns/void#>.
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix morph: <http://oeg-upm.net/ns/morph#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix : <http://es.upm.fi.dia.oeg/R2RMapping#> .
 
 :emtStream rr:tableName "emt"; morph:pk "stopid,lineid,timed".
@@ -25,7 +26,7 @@
 
 :busline a rr:TriplesMap;
   rr:logicalTable :emtStream;
-  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busstop/id/{stopid}/busline/{lineid}";
+  rr:subjectMap [ rr:template "http://transporte.linkeddata.es/emt/busline/id/{lineid}";
                   rr:class emt:BusLine; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [ rr:predicate emt:lineNumber;rr:objectMap [rr:column "{lineid}"]];
 .
@@ -67,7 +68,7 @@
     			   rr:class emt:BusObservation; rr:graph emt:busstops.srdf ];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedProperty ]; 
       		             rr:objectMap    [ rr:constant emt:time_to_bus ]];      		   
-  rr:predicateObjectMap [rr:predicate emt:busline ;
+  rr:predicateObjectMap [rr:predicate emt:busLine ;
     					 rr:objectMap    [ rr:parentTriplesMap :busline; rr:joinCondition "" ]];
   rr:predicateObjectMap [rr:predicateMap [ rr:constant ssn:observedBy ];
     					 rr:objectMap    [ rr:parentTriplesMap :device; rr:joinCondition "" ]];

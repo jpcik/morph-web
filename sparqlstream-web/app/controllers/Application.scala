@@ -83,8 +83,14 @@ object Application extends Controller {
         try {
           val innerquery=if (!vals.showQuery) None else 
             Sensor.rewriteOnly(vals.systemid,vals.query,mapping)
-          val r =Sensor.query(vals.systemid,vals.query,mapping)            
-          Ok(views.html.result(r.asInstanceOf[SparqlResults],vals.systemid,innerquery))
+          val r =Sensor.query(vals.systemid,vals.query,mapping)    
+          r match{
+            case sparqlres:SparqlResults=>
+              Ok(views.html.result(sparqlres,null,vals.systemid,innerquery))
+            case rdf:Model => 
+              Ok(views.html.result(null,rdf,vals.systemid,innerquery))
+          }
+          
         }
         catch {case e:Exception=>
           BadRequest(views.html.query(vals.systemid,taskForm.fill(vals).withGlobalError(e.getMessage)))
@@ -106,7 +112,7 @@ object Application extends Controller {
           else Sensor.rewriteOnly(vals.systemid, vals.query, mapping)
           val id =Sensor.register(vals.systemid,vals.query,mapping)  
           regQuery(id, request)
-          Ok(views.html.qid(id,pullForm.fill(PullForm(vals.systemid,"pull",id)),null,innerquery))            
+          Ok(views.html.qid(id,pullForm.fill(PullForm(vals.systemid,"pull",id)),null,null,innerquery))            
         }
         catch {case e:Exception=>
           BadRequest(views.html.register(vals.systemid,taskForm.fill(vals).withGlobalError(e.getMessage)))
@@ -150,16 +156,16 @@ object Application extends Controller {
   def pull=Action{implicit request =>
     pullForm.bindFromRequest.fold(        
       errors =>                
-        BadRequest(views.html.qid(errors.data("system"),errors,null,None)),
+        BadRequest(views.html.qid(errors.data("system"),errors,null,null,None)),
       vals =>{
         Logger.debug("getting form "+vals)
         if (vals.action.equals("pull")){
           try {
           val r =Sensor.pull(vals.systemid, vals.qid)
           Ok(views.html.qid(vals.systemid,
-              pullForm.fill(PullForm(vals.systemid,vals.action,vals.qid)),r,None))
+              pullForm.fill(PullForm(vals.systemid,vals.action,vals.qid)),r,null,None))
           } catch {case e:Exception=>
-            BadRequest(views.html.qid(vals.systemid,pullForm.fill(vals).withGlobalError(e.getMessage),null,None))}
+            BadRequest(views.html.qid(vals.systemid,pullForm.fill(vals).withGlobalError(e.getMessage),null,null,None))}
         }
         else {
           Sensor.remove(vals.systemid,vals.qid)
