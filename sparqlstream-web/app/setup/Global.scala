@@ -7,6 +7,7 @@ import es.upm.fi.oeg.siq.wrapper.ApiWrapper
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Results._
+import scala.concurrent.Future
 
 object Global extends GlobalSettings {
   lazy val esper = new EsperServer
@@ -27,7 +28,7 @@ object Global extends GlobalSettings {
   }  
     
   override def onError(request: RequestHeader, ex: Throwable) = {
-    InternalServerError(views.html.error("Error in your request",ex))
+    Future.successful(InternalServerError(views.html.error("Error in your request",ex)))
             //views.html.index(List(ex.getMessage()),null))
   }
 }

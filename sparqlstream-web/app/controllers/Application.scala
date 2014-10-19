@@ -24,7 +24,6 @@ import es.upm.fi.oeg.siq.sparql.SparqlResults
 import setup.Global
 import es.upm.fi.oeg.morph.stream.evaluate.StreamReceiver
 import es.upm.fi.oeg.morph.stream.evaluate.EvaluatorUtils
-import play.api.libs.concurrent.Promise
 import akka.actor.Actor
 import scala.concurrent.duration._
 import play.libs.Akka
@@ -190,7 +189,7 @@ object Application extends Controller {
       f.future
       //Promise.timeout(Some(dateFormat.format(new Date)), 1000 milliseconds)
     }
-  }  
+  } 
   def tripp =  Action {
     val events = clock//Enumerator("kiki", "foo", "bar")
     Ok.stream(events &> Comet(callback = "console.log"))
@@ -211,7 +210,7 @@ object Application extends Controller {
     
     val in = Iteratee.foreach[String]{s=>
       println("received meanwhile: "+s) 
-    }.mapDone { _ =>
+    }.map { _ =>
       println("Disconnected")
       dd ! Stop()
       dd ! PoisonPill

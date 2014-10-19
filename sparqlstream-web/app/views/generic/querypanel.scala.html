@@ -4,6 +4,7 @@
 
 <script>
 function copyQuery(q) {
+	//alert("vamos"+q);
 	query = document.getElementById('queryText');
 	query.value=q;
 }
@@ -13,7 +14,7 @@ function copyQuery(q) {
 @Application.queries.getOrElse(systemid,Application.allqueries).map { k =>
   <div class="panelcollapsed" >
     <h2>Query</h2>
-    <div class="panelcontent" onclick="copyQuery('@k.replace("\n","\\n")');">
+    <div class="panelcontent" onclick="copyQuery('@k.replace("\r\n","\\n")');">
       <pre><code>@k</code></pre>
     </div>
   </div>
