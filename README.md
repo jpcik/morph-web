@@ -13,7 +13,7 @@ You will need:
 Then you can:
 
 * download the code
-* start the application: `play run``
+* start the application: `sbt run``
 * go to a browser to `localhost:9000``
 * that's it
 
